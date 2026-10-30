@@ -1,0 +1,1065 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>하루 기록장</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+KR:wght@400;500;600&family=Nanum+Myeongjo:wght@700;800&display=swap">
+<style>
+/* Layout: a field notebook — one narrow column of ruled sections, tabs as a binder index, numbers in mono. */
+:root{
+  --bg:#F1F4F1; --surface:#FFFFFF; --sunk:#E7ECE8; --ink:#1C2521; --muted:#5B6862; --line:#D7DFD9;
+  --accent:#2F6B4F; --accent-ink:#FFFFFF; --accent-soft:#DCEBE2;
+  --ex:#13827E; --rd:#4554BE; --diet:#B06F12;
+  --low:#D9820B; --ok:#2E8656; --high:#C23E2B;
+  --f-display:"Nanum Myeongjo","Noto Serif KR",Georgia,serif;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111614; --surface:#19201D; --sunk:#222A26; --ink:#E4EBE7; --muted:#97A59E; --line:#2C3632;
+  --accent:#71C39C; --accent-ink:#0E1A14; --accent-soft:#1F3328;
+  --ex:#45C3BD; --rd:#929DF2; --diet:#E2A64C; --low:#F1A43B; --ok:#5DC68B; --high:#F27A66; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111614; --surface:#19201D; --sunk:#222A26; --ink:#E4EBE7; --muted:#97A59E; --line:#2C3632;
+  --accent:#71C39C; --accent-ink:#0E1A14; --accent-soft:#1F3328;
+  --ex:#45C3BD; --rd:#929DF2; --diet:#E2A64C; --low:#F1A43B; --ok:#5DC68B; --high:#F27A66; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.25}
+.wrap{max-width:920px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* header + tabs */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-row{display:flex;align-items:center;gap:12px;padding-block:14px 10px}
+.brand{display:flex;flex-direction:column;min-width:0}
+.brand h1{font-size:1.45rem;font-weight:800}
+.brand .today{color:var(--muted);font-size:.82rem}
+.top-row .sp{flex:1}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:.75rem;padding:3px 9px;border-radius:99px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+.chip.on .dot{background:var(--ok)}
+nav.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+nav.tabs a{flex:1;text-align:center;padding:9px 6px 10px;text-decoration:none;color:var(--muted);font-weight:500;border-bottom:2.5px solid transparent;white-space:nowrap;min-width:64px}
+nav.tabs a[aria-current="page"]{color:var(--ink);border-color:var(--accent)}
+nav.tabs a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+main{padding-block:20px 120px}
+section.view{display:flex;flex-direction:column;gap:22px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sec-head h2{font-size:1.25rem;font-weight:800}
+.sec-head .sub{color:var(--muted);font-size:.85rem}
+.label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:640px){.g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g2.stack{grid-template-columns:1fr}}
+.stat{display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat .v{font-family:var(--f-num);font-size:1.45rem;font-variant-numeric:tabular-nums}
+.stat .v small{font-size:.8rem;color:var(--muted);margin-left:2px}
+.stat .k{font-size:.8rem;color:var(--muted)}
+.tag{display:inline-block;font-size:.72rem;padding:1px 8px;border-radius:99px;border:1px solid currentColor;line-height:1.6;white-space:nowrap}
+.c-ex{color:var(--ex)} .c-rd{color:var(--rd)} .c-diet{color:var(--diet)}
+.c-low{color:var(--low)} .c-ok{color:var(--ok)} .c-high{color:var(--high)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:500;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted);padding:6px 8px}
+.btn.ghost:hover{color:var(--ink)}
+.btn.danger{color:var(--high)}
+.btn.sm{padding:5px 10px;font-size:.85rem}
+.quick{display:flex;gap:8px;flex-wrap:wrap}
+.quick .btn{flex:1;min-width:120px;padding:12px}
+.quick .btn b{font-weight:600}
+
+/* lists */
+.list{display:flex;flex-direction:column}
+.row{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row .main{flex:1;min-width:0}
+.row .t{font-weight:500;overflow-wrap:anywhere}
+.row .m{font-size:.82rem;color:var(--muted);overflow-wrap:anywhere}
+.row .r{font-family:var(--f-num);font-variant-numeric:tabular-nums;white-space:nowrap}
+.daylabel{font-size:.8rem;color:var(--muted);font-weight:600;padding-top:14px}
+.empty{color:var(--muted);text-align:center;padding:22px 10px;display:flex;flex-direction:column;gap:10px;align-items:center}
+.empty p{margin:0;max-width:34ch}
+
+/* bars */
+.nbar{display:grid;grid-template-columns:7.2em minmax(0,1fr) 7.5em;align-items:center;gap:10px;padding:5px 0;font-size:.88rem}
+.nbar .track{height:8px;background:var(--sunk);border-radius:99px;position:relative;overflow:hidden}
+.nbar .fill{position:absolute;inset:0 auto 0 0;border-radius:99px}
+.nbar .amt{text-align:right;font-family:var(--f-num);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.nbar .nm{display:flex;gap:6px;align-items:center}
+.nbar .nm i{width:7px;height:7px;border-radius:50%;flex:none}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:8px;height:8px;border-radius:50%}
+.bg-low{background:var(--low)} .bg-ok{background:var(--ok)} .bg-high{background:var(--high)}
+
+.meter{display:flex;align-items:center;gap:16px}
+.ring{width:84px;height:84px;flex:none}
+.ring text{font-family:var(--f-num);fill:var(--ink)}
+
+/* deficiency cards */
+.def{display:flex;flex-direction:column;gap:8px;padding:14px 0;border-top:1px solid var(--line)}
+.def:first-child{border-top:0;padding-top:0}
+.def h3{font-family:var(--f-body);font-size:1rem;font-weight:600;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.def p{margin:0;color:var(--muted);font-size:.88rem}
+.foods{display:flex;flex-wrap:wrap;gap:6px}
+.foods span{font-size:.8rem;background:var(--sunk);padding:3px 9px;border-radius:6px}
+.suggest{font-size:.88rem;background:var(--accent-soft);padding:8px 10px;border-radius:8px}
+.note{font-size:.82rem;color:var(--muted);border-left:2px solid var(--line);padding-left:10px}
+
+/* calendar */
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;text-align:center}
+.cal .dow{font-size:.72rem;color:var(--muted);padding-bottom:4px}
+.cal .d{padding:6px 0 4px;border-radius:6px;font-family:var(--f-num);font-size:.82rem;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:44px}
+.cal .d.today{background:var(--accent-soft);font-weight:600}
+.cal .d.out{visibility:hidden}
+.cal .dots{display:flex;gap:2px;height:6px}
+.cal .dots i{width:6px;height:6px;border-radius:50%}
+.calnav{display:flex;align-items:center;gap:6px}
+
+.seg{display:inline-flex;background:var(--sunk);border-radius:8px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:5px 12px;border-radius:6px;cursor:pointer;color:var(--muted);font-size:.85rem}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+.chart-box{position:relative;height:220px}
+.chart-box.sm{height:200px}
+
+.datebar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.datebar input{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 10px}
+
+.meal{display:flex;flex-direction:column;gap:2px}
+.meal-head{display:flex;justify-content:space-between;align-items:center;padding-top:6px}
+.meal-head b{font-weight:600}
+.meal-head .r{font-family:var(--f-num);font-size:.82rem;color:var(--muted)}
+
+.book{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-top:1px solid var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left;width:100%}
+.book:first-child{border-top:0}
+.spine{width:6px;align-self:stretch;border-radius:3px;background:var(--rd);flex:none;opacity:.8}
+.book .main{flex:1;min-width:0}
+.book .t{font-family:var(--f-display);font-weight:700;font-size:1.02rem}
+.stars{color:var(--diet);letter-spacing:1px}
+.search{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 12px}
+.hl{background:var(--accent-soft);border-radius:3px}
+.quote{white-space:pre-wrap;font-size:.9rem;margin-top:4px;border-left:2px solid var(--rd);padding-left:10px;color:var(--ink)}
+
+/* sheet */
+.backdrop{position:fixed;inset:0;background:rgba(10,15,12,.45);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:560px;max-height:90%;overflow:auto;border-radius:16px 16px 0 0;padding:18px max(18px,env(safe-area-inset-right,0px)) calc(22px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px}
+@media (min-width:700px){.backdrop{align-items:center}.sheet{border-radius:16px;max-height:86%}}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.sheet-head h2{font-size:1.2rem;font-weight:800}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field label,.field .lb{font-size:.82rem;color:var(--muted);font-weight:500}
+.field input,.field select,.field textarea{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:9px 11px;width:100%;min-width:0}
+.field textarea{min-height:110px;resize:vertical}
+.fields{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.fields .full{grid-column:1/-1}
+.actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.actions .grow{flex:1}
+.err{color:var(--high);font-size:.85rem;margin:0}
+.results{display:flex;flex-direction:column;max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px}
+.results button{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border:0;border-top:1px solid var(--line);background:var(--surface);text-align:left;cursor:pointer}
+.results button:first-child{border-top:0}
+.results button:hover,.results button[aria-selected="true"]{background:var(--accent-soft)}
+.results .m{color:var(--muted);font-size:.8rem;white-space:nowrap}
+.favs{display:flex;gap:6px;flex-wrap:wrap}
+.favs button{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:4px 11px;font-size:.82rem;cursor:pointer}
+.favs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.picked{background:var(--sunk);border-radius:8px;padding:10px 12px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.ratepick{display:flex;gap:4px}
+.ratepick button{border:1px solid var(--line);background:var(--bg);border-radius:6px;width:38px;height:34px;cursor:pointer;color:var(--diet);font-size:1rem}
+.ratepick button[aria-pressed="true"]{background:var(--diet);color:var(--surface);border-color:var(--diet)}
+
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:.88rem;z-index:60;max-width:calc(100% - 32px)}
+footer.disc{color:var(--muted);font-size:.78rem;text-align:center;padding-top:8px}
+
+@media (max-width:719px){
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:0 max(4px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(4px,env(safe-area-inset-left,0px));z-index:25}
+  nav.tabs a{border-bottom:0;border-top:2.5px solid transparent;padding:10px 4px 12px;min-width:0}
+  nav.tabs a[aria-current="page"]{border-color:var(--accent)}
+  .nbar{grid-template-columns:5.6em minmax(0,1fr) 6.6em;font-size:.82rem}
+}
+@media (prefers-reduced-motion:no-preference){.fill{transition:width .4s ease}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="top-row">
+      <div class="brand"><h1>하루 기록장</h1><span class="today" id="todayLabel"></span></div>
+      <span class="sp"></span>
+      <span class="chip" id="syncChip"><span class="dot"></span><span id="syncText">불러오는 중</span></span>
+      <button class="btn sm" id="btnSettings" type="button">내 정보</button>
+    </div>
+    <nav class="tabs" id="tabs">
+      <a href="#home" data-v="home">홈</a>
+      <a href="#exercise" data-v="exercise">운동</a>
+      <a href="#reading" data-v="reading">독서</a>
+      <a href="#diet" data-v="diet">식단</a>
+      <a href="#stats" data-v="stats">통계</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="main"></main>
+<div id="sheetRoot"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(function(){
+"use strict";
+/* ---------- nutrients ---------- */
+const NK=['kcal','carb','prot','fat','fiber','sugar','na','ca','fe','k','mg','zn','va','vc','vd','b12','fol'];
+const NM={kcal:['칼로리','kcal',0],carb:['탄수화물','g',0],prot:['단백질','g',1],fat:['지방','g',1],fiber:['식이섬유','g',1],sugar:['당류','g',0],
+na:['나트륨','mg',0],ca:['칼슘','mg',0],fe:['철분','mg',1],k:['칼륨','mg',0],mg:['마그네슘','mg',0],zn:['아연','mg',1],
+va:['비타민 A','μg',0],vc:['비타민 C','mg',0],vd:['비타민 D','μg',1],b12:['비타민 B12','μg',1],fol:['엽산','μg',0]};
+const GROUPS=[['에너지·다량영양소',['kcal','carb','prot','fat','fiber','sugar']],['무기질',['na','ca','fe','k','mg','zn']],['비타민',['va','vc','vd','b12','fol']]];
+const LIMITS=['na','sugar'];
+const UL={ca:2500,fe:45,zn:35,va:3000,vc:2000,vd:100,fol:1000};
+const WHY={
+ kcal:'하루 활동에 필요한 에너지예요. 너무 적으면 근육이 줄고 쉽게 지쳐요.',
+ carb:'뇌와 근육이 가장 먼저 쓰는 연료예요. 통곡물로 채우면 혈당도 안정돼요.',
+ prot:'근육을 유지하고 운동 후 회복을 돕는 재료예요.',
+ fat:'호르몬과 세포막을 만들고 지용성 비타민 흡수를 도와요.',
+ fiber:'장 운동을 돕고 식후 혈당이 천천히 오르게 해요.',
+ ca:'뼈와 치아를 만들고 근육 수축과 신경 전달에 쓰여요.',
+ fe:'혈액이 산소를 나르는 데 필요해요. 부족하면 피로와 어지러움이 생겨요.',
+ k:'나트륨 배출을 도와 혈압을 조절해요.',
+ mg:'근육 이완과 신경 안정, 에너지 대사에 관여해요.',
+ zn:'면역 기능과 상처 회복, 미각 유지에 필요해요.',
+ va:'어두운 곳에서의 시력과 피부·점막 건강을 지켜요.',
+ vc:'항산화 작용과 면역에 쓰이고 철분 흡수를 높여요.',
+ vd:'칼슘 흡수를 도와 뼈를 튼튼하게 해요. 햇빛을 쬐면 몸에서 만들어져요.',
+ b12:'적혈구를 만들고 신경을 보호해요. 주로 동물성 식품에 들어 있어요.',
+ fol:'새 세포를 만드는 데 필요해요. 임신을 준비한다면 특히 중요해요.'
+};
+const SUPP={vd:'음식만으로 채우기 어려운 영양소예요. 하루 15~30분 햇빛을 쬐고, 영양제를 고려한다면 복용 전 의사·약사와 상담하세요.',
+ b12:'채식 위주 식단이라면 음식만으로 채우기 어려워요. 영양제를 고려한다면 복용 전 의사·약사와 상담하세요.'};
+const EXCESS={
+ na:'국·찌개 국물은 절반만 드시고, 라면 수프는 반만 넣어 보세요. 김치·젓갈 양을 줄이고 칼륨이 많은 채소·과일을 곁들이면 좋아요.',
+ sugar:'단 음료 대신 물이나 차를 마시고, 과일은 주스 대신 생과일로 드세요.',
+ kcal:'야식과 간식을 줄이고, 접시의 절반을 채소로 채워 보세요.',
+ fat:'튀김보다 굽거나 찌는 조리법을 고르고, 기름진 고기는 살코기 부위로 바꿔 보세요.',
+ _ul:'상한섭취량을 넘었어요. 영양제를 여러 개 함께 먹고 있지 않은지 확인하세요.'
+};
+
+/* ---------- food DB (1회 제공량 기준, 식품영양성분 DB 참고 근사치) ----------
+   name|분류|제공단위|g|개수단위|개당g|kcal,carb,prot,fat,fiber,sugar,na,ca,fe,k,mg,zn,va,vc,vd,b12,fol */
+const FOOD_RAW=`쌀밥|밥·죽|1공기|210|||315,69,5.7,0.6,0.6,0,4,6,0.4,63,15,1.2,0,0,0,0,6
+현미밥|밥·죽|1공기|210|||330,70,7,2.4,3.4,0.5,6,13,1,170,90,1.8,0,0,0,0,15
+잡곡밥|밥·죽|1공기|210|||320,69,7,1.5,2.5,0.3,5,15,1.1,150,60,1.6,0,0,0,0,15
+김밥|밥·죽|1줄|250|||480,72,14,14,3,4,980,60,1.8,350,40,1.8,180,6,0.2,0.3,60
+비빔밥|밥·죽|1그릇|500|||600,90,22,16,6,8,1100,90,3.5,700,80,3,350,12,0.4,0.6,120
+김치볶음밥|밥·죽|1인분|350|||580,85,14,19,3,4,1300,40,1.8,350,35,1.8,90,8,0.3,0.4,40
+카레라이스|밥·죽|1인분|400|||600,95,15,17,4,6,1200,50,1.8,600,40,2,250,10,0.1,0.3,40
+오므라이스|밥·죽|1인분|400|||650,90,20,22,2,8,1100,60,2,400,40,2,200,6,1,0.8,60
+제육덮밥|밥·죽|1그릇|450|||720,95,28,24,3,12,1300,40,2.2,600,50,3.5,40,10,0.2,0.6,30
+회덮밥|밥·죽|1그릇|450|||550,90,25,8,4,15,900,60,2,600,60,2,200,15,3,1.5,60
+삼각김밥|밥·죽|1개|110|개|110|190,35,4,3,0.5,1,420,10,0.3,60,10,0.6,10,0,0.1,0.1,10
+초밥|밥·죽|10개|300|개|30|480,85,22,5,1,10,1100,25,1,400,50,1.4,30,2,3,2,30
+야채죽|밥·죽|1그릇|300|||200,40,5,2,1.5,1,600,20,0.6,200,20,0.8,150,4,0,0,15
+김치찌개|국·찌개|1인분|400|||250,10,18,15,3,4,1900,80,2,500,40,2.5,60,15,0.3,0.6,40
+된장찌개|국·찌개|1인분|400|||180,12,13,8,4,3,1700,120,2.5,500,60,1.5,60,10,0,0.3,60
+순두부찌개|국·찌개|1인분|400|||230,8,16,15,2,2,1500,120,2.5,400,60,1.8,80,8,0.5,0.4,40
+부대찌개|국·찌개|1인분|450|||450,25,22,28,3,5,2400,120,2.5,600,50,2.5,60,10,0.2,0.6,50
+미역국|국·찌개|1그릇|400|||110,5,9,6,2,0.5,1100,90,1.5,300,60,1.5,50,1,0,0.2,40
+소고기무국|국·찌개|1그릇|400|||150,6,14,7,1.5,2,1200,40,1.8,450,30,3,10,10,0,0.8,30
+콩나물국|국·찌개|1그릇|300|||40,4,3,1,1.5,1,700,25,0.5,180,15,0.3,5,5,0,0,40
+북엇국|국·찌개|1그릇|400|||120,4,20,3,1,1,1200,60,1.5,350,40,1,20,2,1,2,20
+설렁탕|국·찌개|1그릇|600|||300,10,28,15,0,0,1200,50,2,400,30,4,0,0,0,1.5,10
+육개장|국·찌개|1그릇|500|||250,10,22,13,3,3,1700,60,3,600,50,4,100,10,0,1,50
+삼계탕|국·찌개|1그릇|1000|||900,40,80,45,2,3,1600,80,4,1000,90,6,100,5,0.5,1,50
+마라탕|국·찌개|1인분|600|||600,45,25,35,5,4,3000,150,4,800,80,3,200,15,0.2,1,80
+라면|면|1봉|500|||500,79,10,16,3,4,1790,30,1.5,300,30,1,0,0,0,0,10
+컵라면(소)|면|1개|300|개|300|290,40,5,12,1.5,2,1100,20,0.7,150,15,0.4,0,0,0,0,5
+짜장면|면|1그릇|650|||800,130,22,20,6,15,2400,60,3,600,70,2.5,30,8,0,0.3,50
+짬뽕|면|1그릇|900|||700,100,30,18,6,10,4000,100,4,900,90,4,150,20,1,2,70
+칼국수|면|1그릇|700|||550,95,18,8,4,3,2500,50,2,400,50,1.8,50,5,0,0.5,30
+물냉면|면|1그릇|800|||550,105,18,5,3,10,2600,50,2.5,500,50,2,20,5,0,0.6,30
+잔치국수|면|1그릇|600|||450,85,13,4,2,3,1800,40,1.5,250,30,1,40,3,0.2,0.2,25
+우동|면|1그릇|600|||400,75,12,4,2,4,2200,30,1,200,25,0.8,10,2,0.1,0.3,15
+쌀국수|면|1그릇|600|||450,75,20,6,2,5,2000,50,2.5,500,40,3,20,5,0,1.2,30
+토마토 스파게티|면|1인분|400|||600,90,22,15,6,12,900,90,3,700,70,2.5,80,15,0.2,0.6,60
+닭가슴살|고기·생선|100g|100|||109,0,23,1.2,0,0,45,5,0.4,350,30,0.7,5,0,0.1,0.3,4
+삶은 계란|고기·생선|1개|50|개|50|75,0.5,6.3,5,0,0.5,70,25,0.9,65,6,0.6,80,0,1,0.5,22
+계란후라이|고기·생선|1개|55|개|55|95,0.5,6.5,7.5,0,0.4,95,28,0.9,70,6,0.6,85,0,1,0.5,22
+계란찜|고기·생선|1그릇|150|||130,2,10,9,0,1,450,50,1.4,150,12,1,120,0,1.5,0.8,35
+삼겹살 구이|고기·생선|1인분|150|||600,0,26,55,0,0,80,10,1.2,400,25,3.5,10,1,0.5,1,5
+소고기 등심 구이|고기·생선|1인분|150|||420,0,38,30,0,0,90,15,3.5,500,35,7,10,0,0.2,3,10
+불고기|고기·생선|1인분|200|||350,15,30,18,1,10,900,20,3.5,500,35,6,20,5,0,2.5,15
+제육볶음|고기·생선|1인분|200|||380,15,25,24,2,10,1000,25,1.5,450,30,3,40,8,0.2,0.6,20
+닭볶음탕|고기·생선|1인분|350|||450,20,40,22,3,10,1400,50,3,700,60,3,200,15,0.3,0.6,30
+후라이드 치킨|고기·생선|2조각|200|조각|100|550,20,40,35,1,0.5,900,30,1.8,450,40,2.5,40,1,0.3,0.6,20
+돈까스|고기·생선|1인분|200|||550,35,25,34,2,4,800,30,1.5,400,30,2.5,20,10,0.5,0.6,20
+탕수육|고기·생선|1인분|200|||480,50,16,24,1,20,600,20,1.2,300,20,1.6,20,10,0.2,0.4,10
+족발|고기·생선|1인분|200|||460,2,45,30,0,1,900,40,2,250,15,3,0,0,0.5,0.6,5
+햄|고기·생선|2장|30|장|15|60,1,5,4,0,0.5,350,5,0.3,80,5,0.5,0,5,0,0.2,1
+소시지|고기·생선|1개|50|개|50|150,2,6,13,0,1,500,10,0.5,100,8,0.8,0,0,0.3,0.4,2
+고등어구이|고기·생선|1토막|100|||230,0,21,16,0,0,250,10,1.3,350,30,1,40,1,10,8,10
+꽁치구이|고기·생선|1마리|100|||280,0,22,21,0,0,250,30,1.4,250,30,0.8,15,0,15,15,15
+연어구이|고기·생선|1토막|100|||200,0,22,12,0,0,60,10,0.4,400,30,0.5,40,0,15,3,25
+광어회|고기·생선|1접시|100|||110,0,21,2.5,0,0,60,20,0.2,400,30,0.5,10,2,4,1.3,10
+참치캔|고기·생선|1캔|100|||190,0,25,9,0,0,400,10,1,250,30,0.8,20,0,4,2,5
+새우|고기·생선|100g|100|||95,0,20,1,0,0,300,60,0.5,180,35,1.4,0,0,0,1,5
+오징어볶음|고기·생선|1인분|200|||250,15,30,6,2,8,1200,40,1.5,500,70,3,60,10,0,2,20
+굴|고기·생선|100g|100|||70,4,8,2,0,0,400,80,4.5,200,30,16,30,4,0,16,10
+바지락|고기·생선|100g|100|||75,3,13,1,0,0,600,90,10,300,80,1.5,10,5,0,40,5
+두부|콩·두부|1/3모|100|||84,2,9,5,0.5,0,5,130,1.5,150,60,0.9,0,0,0,0,30
+낫토|콩·두부|1팩|50|팩|50|100,6,8,5,3,1,3,45,1.7,330,58,1,0,0,0,0,60
+검은콩조림|콩·두부|1접시|50|||120,15,7,3,4,8,350,40,2,450,60,1,0,0,0,0,80
+볶은 검은콩|콩·두부|1줌|30|||130,9,11,5.4,6,1,1,60,2.4,480,66,1.2,0,0,0,0,100
+두유|콩·두부|1팩|190|팩|190|120,10,7,6,1,6,100,120,1.2,350,40,0.6,0,0,0.6,0.5,30
+배추김치|반찬|1접시|50|||10,2,0.8,0.2,1.2,0.5,330,20,0.3,150,8,0.2,30,8,0,0,30
+깍두기|반찬|1접시|50|||15,3,0.7,0.2,1,1.5,300,20,0.3,150,8,0.2,5,6,0,0,20
+시금치나물|반찬|1접시|70|||40,3,2.5,2.5,2,0.5,250,60,1.8,400,55,0.5,250,15,0,0,100
+콩나물무침|반찬|1접시|70|||30,3,2.5,1.5,1.5,0.5,250,20,0.4,150,15,0.4,5,5,0,0,40
+멸치볶음|반찬|1접시|30|||100,8,10,4,0.3,5,600,350,1.5,200,60,1.2,15,0,1,3,10
+계란말이|반찬|1접시|100|||160,2,11,12,0.2,1,350,50,1.6,140,12,1.1,160,2,2,0.9,45
+조미김|반찬|1봉|5|봉|5|25,1,1.5,2,1.5,0,90,15,0.6,120,15,0.2,100,4,0,2,60
+미역줄기볶음|반찬|1접시|70|||50,5,1,3,3,1,400,70,0.5,200,40,0.2,40,1,0,0,20
+잡채|반찬|1접시|150|||280,40,6,10,2,10,700,30,1.3,250,25,0.8,180,5,0,0.2,20
+감자조림|반찬|1접시|100|||110,22,2,1.5,1.5,6,500,8,0.5,350,20,0.3,0,10,0,0,15
+버섯볶음|반찬|1접시|100|||60,5,3,3,2.5,1,250,5,0.6,350,12,0.6,0,0,0.5,0.1,25
+떡볶이|분식|1인분|300|||450,90,9,5,2,18,1300,30,1.5,250,20,1,60,3,0,0.1,15
+순대|분식|1인분|150|||280,30,12,12,1,1,600,30,8,150,15,1.5,5,0,0,0.5,10
+모둠튀김|분식|3개|150|개|50|400,40,8,24,2,1,400,30,1,200,15,0.5,30,3,0.1,0.1,10
+군만두|분식|5개|150|개|30|380,40,13,18,2,3,700,30,1.8,250,25,1.5,20,5,0.1,0.3,20
+브로콜리|채소|1접시|70|||25,5,2.5,0.3,2.5,1,20,35,0.6,220,15,0.3,40,45,0,0,70
+양배추|채소|100g|100|||23,5,1.3,0.1,2.5,3,15,40,0.4,170,12,0.2,5,36,0,0,40
+토마토|채소|1개|150|개|150|27,6,1.3,0.3,1.8,4,8,15,0.4,350,15,0.25,60,20,0,0,22
+방울토마토|채소|10개|150|개|15|30,6,1.3,0.3,2,4,8,15,0.4,350,15,0.3,60,25,0,0,25
+오이|채소|1/2개|100|||12,2.5,0.6,0.1,0.6,1.5,2,15,0.3,150,13,0.2,5,3,0,0,7
+당근|채소|1/2개|70|||28,6.5,0.6,0.2,2,3,45,23,0.2,230,8,0.2,580,4,0,0,13
+쌈채소|채소|1접시|100|||18,3,1.5,0.2,2,1,10,60,1,350,20,0.3,300,20,0,0,80
+깻잎|채소|10장|20|장|2|8,1.5,0.8,0.1,1,0,1,45,0.4,100,15,0.2,120,8,0,0,30
+채소 샐러드|채소|1그릇|150|||120,10,2,8,3,5,250,50,1,350,25,0.4,250,25,0,0,80
+닭가슴살 샐러드|채소|1그릇|250|||250,10,27,11,4,4,450,60,1.5,600,45,1.2,250,30,0.1,0.4,100
+고구마|채소|1개|150|개|150|195,45,2,0.2,4.5,9,60,45,0.9,500,35,0.4,700,20,0,0,17
+찐 감자|채소|1개|150|개|150|115,26,3,0.2,2.5,1,8,10,0.5,600,30,0.4,0,20,0,0,25
+옥수수|채소|1개|150|개|150|165,32,5,2,4,5,15,5,0.7,320,45,1,15,8,0,0,35
+단호박|채소|100g|100|||60,14,1.5,0.2,2,6,1,25,0.5,400,20,0.3,380,15,0,0,25
+아보카도|채소|1/2개|70|||115,6,1.4,10.5,4.7,0.5,5,9,0.4,340,20,0.45,5,7,0,0,57
+바나나|과일|1개|120|개|120|105,27,1.3,0.4,3,14,1,6,0.3,420,32,0.2,4,10,0,0,24
+사과|과일|1개|200|개|200|105,28,0.5,0.3,4.8,21,2,12,0.2,210,10,0.1,6,8,0,0,6
+귤|과일|1개|80|개|80|35,9,0.6,0.1,1.2,7,1,25,0.1,130,8,0.1,40,25,0,0,18
+오렌지|과일|1개|180|개|180|85,21,1.7,0.2,4.3,17,0,70,0.2,330,18,0.1,20,95,0,0,55
+딸기|과일|10개|150|개|15|50,12,1,0.5,3,7,2,25,0.6,230,20,0.2,2,90,0,0,35
+블루베리|과일|1컵|100|||57,14,0.7,0.3,2.4,10,1,6,0.3,77,6,0.2,3,10,0,0,6
+포도|과일|1송이|150|||100,26,1,0.2,1.4,23,3,15,0.5,290,10,0.1,5,5,0,0,3
+키위|과일|1개|90|개|90|55,13,1,0.5,2.7,8,3,30,0.3,280,15,0.1,4,85,0,0,23
+수박|과일|1조각|300|||90,23,1.8,0.4,1.2,18,3,20,0.7,340,30,0.3,85,25,0,0,9
+배|과일|1/2개|200|||80,21,0.6,0.2,4,14,1,8,0.2,250,10,0.1,1,8,0,0,10
+감|과일|1개|150|개|150|120,31,0.8,0.3,5,20,2,12,0.2,250,14,0.2,120,20,0,0,10
+우유|유제품|1컵(200ml)|200|팩(200ml)|200|130,10,6.4,7,0,10,100,220,0.1,300,22,0.8,110,1,0.2,0.9,10
+저지방 우유|유제품|1컵(200ml)|200|||90,10,6.8,2,0,10,110,240,0.1,320,22,0.8,60,1,0.2,0.9,10
+플레인 요거트|유제품|1개|100|개|100|60,5,4,3,0,5,50,130,0.1,170,12,0.6,25,0.5,0,0.4,7
+그릭요거트|유제품|100g|100|||100,4,10,5,0,4,40,110,0.1,140,11,0.5,25,0,0,0.75,7
+슬라이스 치즈|유제품|1장|20|장|20|60,1,3.5,4.5,0,0.5,250,120,0.05,20,4,0.6,50,0,0.1,0.2,2
+아이스크림|유제품|1개|100|개|100|200,24,3.5,10,0.5,20,80,120,0.1,200,15,0.5,100,0.5,0.1,0.3,5
+식빵|빵·간식|1장|35|장|35|95,17,3,1.5,0.9,2,170,20,0.6,40,8,0.3,0,0,0,0,30
+버터잼 토스트|빵·간식|1개|80|개|80|260,38,5,10,1.3,12,330,40,1,80,15,0.5,60,1,0.1,0.1,40
+샌드위치|빵·간식|1개|200|개|200|450,45,18,22,3,6,950,150,2.5,350,35,2,100,8,0.3,0.6,70
+햄버거|빵·간식|1개|230|개|230|550,48,26,28,2,9,1100,130,3.5,400,40,4.5,30,2,0.2,2,50
+피자|빵·간식|2조각|200|조각|100|540,60,24,22,3,7,1200,330,3,350,40,3,100,4,0.2,1,60
+베이글|빵·간식|1개|100|개|100|270,53,10,1.5,2,5,450,20,3,100,25,0.9,0,0,0,0,90
+크루아상|빵·간식|1개|60|개|60|240,27,5,12,1.5,6,250,20,1.2,70,10,0.4,120,0,0.1,0.1,50
+시리얼과 우유|빵·간식|1그릇|230|||240,35,9,7,1.5,15,280,350,4,380,35,2,300,8,1.5,1.8,150
+오트밀(우유)|빵·간식|1그릇|240|||280,37,12,10,4,11,110,240,1.8,450,80,2,110,1,0.2,0.9,25
+견과류 믹스|빵·간식|1줌|25|봉|25|150,5,5,13,2,1,1,40,0.9,180,60,1,0,0,0,0,15
+아몬드|빵·간식|20알|25|알|1.25|145,5,5,12.5,3,1,0,65,0.9,180,68,0.8,0,0,0,0,12
+가래떡|빵·간식|100g|100|||230,50,4,0.5,0.5,5,250,5,0.3,40,10,0.7,0,0,0,0,5
+감자칩|빵·간식|1봉|60|봉|60|320,36,4,18,1.5,3,350,10,0.6,250,20,0.4,0,5,0,0,10
+초콜릿|빵·간식|1개|40|개|40|220,24,3,13,2,20,30,60,1,200,40,0.8,15,0,0,0.1,5
+단백질바|빵·간식|1개|50|개|50|200,22,15,7,5,8,150,150,1.5,150,40,2,100,10,1,0.5,80
+쿠키|과자·사탕|2개|30|개|15|145,19,1.8,7,0.6,9,110,8,0.7,40,6,0.2,20,0,0,0,10
+비스킷|과자·사탕|5개|30|개|6|140,20,2,6,0.8,6,130,15,0.8,45,6,0.2,0,0,0,0,10
+크래커|과자·사탕|10개|30|개|3|135,20,2.5,5,0.8,1.5,250,15,1,40,8,0.3,0,0,0,0,15
+새우맛 스낵|과자·사탕|1봉|90|봉|90|460,62,6,21,1.5,6,780,30,1,170,25,0.6,0,0,0,0,15
+옥수수 스낵|과자·사탕|1봉|60|봉|60|310,38,3,16,1.5,4,370,10,0.6,80,15,0.4,10,0,0,0,10
+초코파이|과자·사탕|1개|35|개|35|150,21,1.5,6,0.5,13,70,10,0.6,50,10,0.2,5,0,0,0,5
+웨하스|과자·사탕|1봉|40|봉|40|210,27,2.5,10,0.8,15,60,15,0.6,60,10,0.3,0,0,0,0,5
+쌀과자|과자·사탕|5개|25|개|5|110,19,1.5,3.5,0.3,4,120,3,0.2,30,8,0.3,0,0,0,0,3
+뻥튀기|과자·사탕|1봉|30|봉|30|115,26,2,0.3,0.4,0,5,2,0.2,30,8,0.4,0,0,0,0,2
+팝콘|과자·사탕|1봉|50|봉|50|250,28,3.5,14,5,1,300,5,1,120,50,1.2,10,0,0,0,10
+프레첼|과자·사탕|1봉|40|봉|40|150,32,4,1,1.2,1,550,10,1.6,60,10,0.4,0,0,0,0,40
+초코바|과자·사탕|1개|50|개|50|240,30,3.5,12,1,24,90,50,0.6,170,30,0.8,20,0,0,0.1,10
+젤리|과자·사탕|1봉|50|봉|50|170,40,3,0,0,30,20,2,0.1,3,1,0,0,0,0,0,0
+사탕|과자·사탕|3개|15|개|5|59,15,0,0,0,10,5,0,0,1,0,0,0,0,0,0,0
+캐러멜|과자·사탕|3개|15|개|5|65,11,0.6,2,0,9,30,20,0,30,2,0.1,5,0,0,0,0
+껌|과자·사탕|1개|3|개|3|8,2,0,0,0,1.5,0,0,0,0,0,0,0,0,0,0,0
+양갱|과자·사탕|1개|50|개|50|140,33,1.5,0.1,1.5,25,15,10,0.6,30,10,0.2,0,0,0,0,3
+약과|과자·사탕|1개|40|개|40|170,25,1.5,7,0.5,12,40,8,0.5,30,6,0.2,0,0,0,0,3
+마카롱|과자·사탕|2개|30|개|15|130,18,2,6,0.6,16,15,15,0.4,50,15,0.2,10,0,0,0,3
+단팥빵|빵·디저트|1개|100|개|100|280,50,7,5,2.5,20,200,25,1.2,150,20,0.6,0,0,0,0,30
+크림빵|빵·디저트|1개|90|개|90|290,40,6,12,1,16,200,50,0.8,100,12,0.5,60,0,0.3,0.2,25
+소보로빵|빵·디저트|1개|90|개|90|340,46,7,14,1.5,15,220,25,1,100,15,0.5,40,0,0.1,0.1,30
+소금빵|빵·디저트|1개|70|개|70|260,30,5,13,1,3,450,15,0.8,60,10,0.4,90,0,0.1,0.1,30
+모닝빵|빵·디저트|1개|30|개|30|95,15,2.8,2.5,0.7,2.5,140,15,0.5,35,7,0.2,10,0,0,0,25
+바게트|빵·디저트|1조각|50|조각|50|135,27,4.5,0.7,1.2,1.5,300,10,1,60,12,0.4,0,0,0,0,40
+마늘빵|빵·디저트|1개|50|개|50|200,22,4,11,1,3,270,20,0.8,50,8,0.3,80,1,0,0,20
+카스텔라|빵·디저트|1조각|50|조각|50|160,26,4,4.5,0.3,15,60,15,0.6,50,5,0.3,60,0,0.5,0.2,15
+도넛|빵·디저트|1개|60|개|60|250,28,3.5,14,1,12,200,20,1,60,10,0.4,10,0,0.2,0.1,30
+머핀|빵·디저트|1개|100|개|100|380,50,5,18,1.5,25,350,60,1.5,120,15,0.5,60,0,0.3,0.2,35
+와플|빵·디저트|1개|75|개|75|230,30,6,10,0.8,8,350,100,1.5,100,12,0.5,50,0,0.3,0.3,30
+롤케이크|빵·디저트|1조각|60|조각|60|220,30,3.5,10,0.4,20,100,25,0.6,60,6,0.3,60,0,0.3,0.2,10
+생크림 케이크|빵·디저트|1조각|100|조각|100|320,38,4.5,17,0.5,28,150,50,0.8,100,10,0.4,150,0,0.3,0.3,15
+치즈케이크|빵·디저트|1조각|100|조각|100|320,26,6,22,0.4,20,250,50,0.6,90,10,0.5,150,0,0.4,0.4,10
+꽈배기|빵·디저트|1개|60|개|60|240,32,4,11,1,10,150,15,1,50,8,0.4,0,0,0,0,30
+호떡|빵·디저트|1개|100|개|100|300,48,5,10,1.5,18,200,20,1,100,15,0.5,0,0,0,0,30
+붕어빵|빵·디저트|3개|120|개|40|270,55,7,3,2,22,200,25,1.2,120,18,0.5,0,0,0,0,30
+미숫가루|음료|1잔|230|잔|230|115,22,3.5,1.2,2.5,4,30,25,1.5,200,40,0.8,0,0,0,0,25
+아메리카노|음료|1잔|355|잔|355|10,1.5,0.5,0,0,0,10,10,0.1,200,15,0.05,0,0,0,0,0
+카페라테|음료|1잔|355|잔|355|190,15,10,10,0,15,150,350,0.2,500,40,1.2,150,1,0.3,1.3,15
+녹차|음료|1잔|200|잔|200|2,0.4,0.4,0,0,0,2,0,0,40,2,0,0,0,0,0,10
+오렌지주스|음료|1컵|200|||90,21,1.5,0.4,0.4,18,4,20,0.4,400,20,0.1,20,80,0,0,60
+콜라|음료|1캔|250|캔|250|108,27,0,0,0,27,10,5,0,5,1,0,0,0,0,0,0
+스포츠음료|음료|1병|500|병|500|125,31,0,0,0,31,245,0,0,100,0,0,0,0,0,0,0
+단백질 쉐이크|음료|1잔|300|잔|300|160,8,24,3,1,3,250,350,3,400,50,3,200,30,2.5,1.5,100
+맥주|음료|1캔(500ml)|500|캔|500|215,17,2,0,0,0,20,20,0.1,135,30,0.05,0,0,0,0.1,30
+소주|음료|1병|360|잔|50|400,0.5,0,0,0,0.5,5,0,0,0,0,0,0,0,0,0,0
+막걸리|음료|1사발|300|||165,8,4,0,0.5,1,15,10,0.3,60,10,0.1,0,0,0,0,10`;
+const BUILTIN=FOOD_RAW.split('\n').map((ln,i)=>{const p=ln.split('|');const v=p[6].split(',').map(Number);const n={};NK.forEach((k,j)=>n[k]=v[j]);
+  return {id:'b'+i,name:p[0],cat:p[1],serv:p[2],servG:+p[3],cnt:p[4]||'',cntG:+p[5]||0,n};});
+
+/* ---------- constants ---------- */
+const EX_DEFAULT=['러닝','걷기','헬스','요가','댄스','수영','자전거'];
+const MET={'댄스':5.5,'러닝':9.8,'걷기':3.5,'헬스':5,'요가':2.5,'수영':7,'자전거':7.5,'등산':6.5,'필라테스':3,'홈트':4,'줄넘기':11,'배드민턴':5.5,'테니스':7.3,'축구':7,'농구':6.5,'스트레칭':2.3};
+const GENRE_DEFAULT=['소설','에세이','자기계발','인문','경제/경영','과학'];
+const STATUS={reading:'읽는 중',done:'완독',stop:'중단'};
+const MEALS=[['breakfast','아침'],['lunch','점심'],['dinner','저녁'],['snack','간식']];
+const DOW=['일','월','화','수','목','금','토'];
+
+/* ---------- utils ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today=()=>ymd(new Date());
+const parseD=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(s,n)=>{const d=parseD(s);d.setDate(d.getDate()+n);return ymd(d)};
+const fmtD=s=>{const d=parseD(s);return (d.getMonth()+1)+'월 '+d.getDate()+'일 ('+DOW[d.getDay()]+')'};
+const fmtMin=m=>{m=Math.round(m||0);if(m<60)return m+'분';const h=Math.floor(m/60),r=m%60;return h+'시간'+(r?' '+r+'분':'')};
+const rid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const fmtN=(k,v)=>{const d=NM[k][2];const x=+v||0;return d?x.toFixed(d).replace(/\.0$/,''):Math.round(x).toLocaleString('ko-KR')};
+function toast(msg){const t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2200)}
+function cssVar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+
+/* ---------- store ---------- */
+const COLLS=['exercise','books','reading','meals','foods'];
+const S={profile:{},exercise:[],books:[],reading:[],meals:[],foods:[]};
+const Store={mode:'pending',base:null,ready:false,q:Promise.resolve(),
+  async init(){
+    let db=null,uid=null;
+    try{ if(window.claude&&window.claude.use){
+      const [d,u]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);
+      db=d; uid=u? await u.id():null; } }catch(e){db=null}
+    if(db&&uid){
+      this.mode='db'; this.base=db.doc('data/users/'+uid+'/lifelog');
+      let pending=COLLS.length+1;
+      const done=()=>{if(--pending===0){this.ready=true;setSync();}};
+      let firstP=true;
+      this.base.onSnapshot(s=>{S.profile=s.exists?{...s.data()}:{};if(firstP){firstP=false;done()}schedule()},e=>this.fail(e));
+      COLLS.forEach(c=>{let first=true;this.base.collection(c).onSnapshot(qs=>{S[c]=qs.docs.map(d=>({...d.data(),id:d.id}));if(first){first=false;done()}schedule()},e=>this.fail(e))});
+    }else{
+      this.mode='local';
+      try{const raw=localStorage.getItem('lifelog.v1');if(raw){const o=JSON.parse(raw);Object.keys(S).forEach(k=>{if(o[k])S[k]=o[k]})}}catch(e){this.mode='memory'}
+      this.ready=true; setSync(); schedule();
+    }
+  },
+  fail(e){console.warn(e);toast('저장소 연결이 끊겼어요. 페이지를 새로 고쳐 주세요.')},
+  saveLocal(){try{localStorage.setItem('lifelog.v1',JSON.stringify(S))}catch(e){}},
+  run(fn){this.q=this.q.then(fn).catch(e=>{console.warn(e);toast(e&&e.code==='quota_exceeded'?'저장 공간이 가득 찼어요.':'저장하지 못했어요. 잠시 후 다시 시도해 주세요.')});return this.q},
+  put(c,rec){if(!rec.id)rec.id=rid();const clean=JSON.parse(JSON.stringify(rec));
+    if(this.mode==='db'){return this.run(()=>this.base.collection(c).doc(clean.id).set(clean))}
+    const i=S[c].findIndex(x=>x.id===clean.id);if(i>=0)S[c][i]=clean;else S[c].push(clean);this.saveLocal();schedule();return Promise.resolve()},
+  del(c,id){if(this.mode==='db'){return this.run(()=>this.base.collection(c).doc(id).delete())}
+    S[c]=S[c].filter(x=>x.id!==id);this.saveLocal();schedule();return Promise.resolve()},
+  setProfile(patch){const p=JSON.parse(JSON.stringify({...S.profile,...patch}));
+    if(this.mode==='db'){S.profile=p;schedule();return this.run(()=>this.base.set(p))}
+    S.profile=p;this.saveLocal();schedule();return Promise.resolve()}
+};
+function setSync(){const c=$('#syncChip'),t=$('#syncText');
+  if(Store.mode==='db'){c.classList.add('on');t.textContent='계정에 저장'}
+  else if(Store.mode==='local'){t.textContent='이 브라우저에 저장'}
+  else t.textContent='임시 저장(새로 고치면 사라짐)';}
+function guard(){if(!Store.ready){toast('기록을 불러오는 중이에요. 잠시만요.');return false}return true}
+
+/* ---------- derived ---------- */
+const exTypes=()=>[...new Set([...EX_DEFAULT,...(S.profile.exTypes||[]),...S.exercise.map(e=>e.type)])];
+const genres=()=>[...new Set([...GENRE_DEFAULT,...(S.profile.genres||[]),...S.books.map(b=>b.genre).filter(Boolean)])];
+const allFoods=()=>[...BUILTIN,...S.foods.map(f=>({...f,cat:'직접 등록'}))];
+const weight=()=>+S.profile.weight||(S.profile.sex==='F'?57:70);
+const INTENSITY={low:['가볍게','숨이 차지 않음',0.8],mid:['보통','약간 숨참, 대화 가능',1],high:['격렬하게','숨이 많이 참, 대화 어려움',1.25]};
+const exKcal=e=>Math.round((MET[e.type]||5)*(INTENSITY[e.intensity||'mid']||INTENSITY.mid)[2]*weight()*(e.minutes||0)/60);
+const exOn=d=>S.exercise.filter(e=>e.date===d);
+const rdOn=d=>S.reading.filter(r=>r.date===d);
+const mealsOn=d=>S.meals.filter(m=>m.date===d);
+const sumMin=a=>a.reduce((s,x)=>s+(+x.minutes||0),0);
+const hasProfile=()=>!!(S.profile.sex&&S.profile.age&&S.profile.height&&S.profile.weight);
+
+function dri(){
+  const p=S.profile,male=p.sex!=='F',a=+p.age||30,w=weight(),h=+p.height||(male?173:160);
+  const bmr=10*w+6.25*h-5*a+(male?5:-161);
+  const af={low:1.4,mid:1.6,high:1.8}[p.activity||'mid'];
+  const kcal=Math.round(bmr*af/10)*10;
+  return {kcal,carb:kcal*.6/4,prot:male?(a<50?65:60):(a<30?55:50),fat:kcal*.25/9,fiber:male?30:20,sugar:kcal*.2/4,
+    na:2300,ca:male?(a<50?800:750):(a<50?700:800),fe:male?(a<65?10:9):(a<50?14:8),k:3500,mg:male?(a<30?360:370):280,
+    zn:male?(a<50?10:9):(a<50?8:7),va:male?(a<50?800:a<65?750:700):(a<50?650:600),vc:100,vd:a<65?10:15,b12:2.4,fol:400};
+}
+function intake(d){const t={};NK.forEach(k=>t[k]=0);mealsOn(d).forEach(m=>NK.forEach(k=>t[k]+=+(m.n&&m.n[k])||0));return t}
+function goalFor(d){const g=dri();g.kcal+=exOn(d).reduce((s,e)=>s+exKcal(e),0);g.carb=g.kcal*.6/4;g.fat=g.kcal*.25/9;g.sugar=g.kcal*.2/4;return g}
+/* period: returns {amt, goal, days} averaged over days that have meal records */
+function period(endD,len){
+  const days=[];for(let i=0;i<len;i++){const d=addDays(endD,-i);if(mealsOn(d).length)days.push(d)}
+  const amt={},goal={};NK.forEach(k=>{amt[k]=0;goal[k]=0});
+  days.forEach(d=>{const t=intake(d),g=goalFor(d);NK.forEach(k=>{amt[k]+=t[k];goal[k]+=g[k]})});
+  if(days.length)NK.forEach(k=>{amt[k]/=days.length;goal[k]/=days.length});
+  else{const g=goalFor(endD);NK.forEach(k=>goal[k]=g[k])}
+  return {amt,goal,days:days.length};
+}
+function status(k,amt,goal){const pct=goal?amt/goal*100:0;
+  if(LIMITS.includes(k))return amt>goal?'high':'ok';
+  if(UL[k]&&amt>UL[k])return 'high';
+  if(k==='kcal'&&pct>120)return 'high';
+  if(k==='fat'&&pct>140)return 'high';
+  if(pct<70)return 'low';return 'ok';}
+function score(p){if(!p.days)return null;const ks=NK.filter(k=>!LIMITS.includes(k));
+  let s=ks.reduce((a,k)=>a+Math.min(100,p.amt[k]/p.goal[k]*100),0)/ks.length;
+  NK.forEach(k=>{if(status(k,p.amt[k],p.goal[k])==='high')s-=8});return Math.max(0,Math.round(s));}
+function richFoods(k,n=4){
+  return BUILTIN.filter(f=>f.n.kcal<=600&&f.n.na<=1000&&f.n[k]>0).map(f=>({f,v:f.n[k]})).sort((a,b)=>b.v-a.v).slice(0,n);
+}
+function streak(){const set=new Set(S.exercise.map(e=>e.date));let d=today();if(!set.has(d))d=addDays(d,-1);let n=0;while(set.has(d)){n++;d=addDays(d,-1)}return n}
+function weekStart(d){const x=parseD(d);const w=(x.getDay()+6)%7;x.setDate(x.getDate()-w);return ymd(x)}
+function inRange(d,a,b){return d>=a&&d<=b}
+
+/* ---------- routing ---------- */
+const VIEWS=['home','exercise','reading','diet','stats'];
+let view='home';
+const ui={dietDate:today(),dietPeriod:'today',calMonth:null,rdQuery:'',rdGenre:'전체',statNut:'prot',statLen:7};
+function route(){const h=(location.hash||'').slice(1);view=VIEWS.includes(h)?h:'home';
+  document.querySelectorAll('#tabs a').forEach(a=>a.setAttribute('aria-current',a.dataset.v===view?'page':'false'));render();window.scrollTo(0,0)}
+window.addEventListener('hashchange',route);
+
+let raf=0;function schedule(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;render()})}
+const charts={};function killCharts(){Object.keys(charts).forEach(k=>{charts[k].destroy();delete charts[k]})}
+
+function render(){
+  if(sheetOpen)return; // keep sheets stable; re-render after closing
+  killCharts();
+  const m=$('#main');
+  m.innerHTML='<section class="view">'+({home:vHome,exercise:vExercise,reading:vReading,diet:vDiet,stats:vStats}[view])()+'</section>';
+  afterRender[view]&&afterRender[view]();
+}
+const afterRender={};
+
+/* ---------- small renderers ---------- */
+function bar(k,amt,goal){const st=status(k,amt,goal);const pct=goal?amt/goal*100:0;
+  return `<div class="nbar"><span class="nm"><i class="bg-${st}"></i>${NM[k][0]}</span>
+  <span class="track" role="img" aria-label="${NM[k][0]} ${Math.round(pct)}%"><span class="fill bg-${st}" style="width:${Math.min(100,pct).toFixed(1)}%"></span></span>
+  <span class="amt">${fmtN(k,amt)}/${fmtN(k,goal)}${NM[k][1]} · ${Math.round(pct)}%</span></div>`}
+function ring(v,color){const r=34,c=2*Math.PI*r,p=v==null?0:v/100;
+  return `<svg class="ring" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="${r}" fill="none" stroke="var(--sunk)" stroke-width="8"/>
+  <circle cx="42" cy="42" r="${r}" fill="none" stroke="${color}" stroke-width="8" stroke-linecap="round" stroke-dasharray="${(c*p).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 42 42)"/>
+  <text x="42" y="48" text-anchor="middle" font-size="19">${v==null?'–':v}</text></svg>`}
+function emptyState(msg,btn){return `<div class="empty"><p>${msg}</p>${btn||''}</div>`}
+const sampleBtn=()=>S.exercise.length+S.reading.length+S.meals.length===0?`<button class="btn sm" data-act="sample" type="button">예시 데이터로 둘러보기</button>`:'';
+
+/* ---------- HOME ---------- */
+function vHome(){
+  const d=today(),ex=exOn(d),rd=rdOn(d),ml=mealsOn(d),p=period(d,1),sc=score(p);
+  const lows=p.days?NK.filter(k=>!LIMITS.includes(k)&&status(k,p.amt[k],p.goal[k])==='low').sort((a,b)=>p.amt[a]/p.goal[a]-p.amt[b]/p.goal[b]).slice(0,2):[];
+  const highs=p.days?LIMITS.filter(k=>status(k,p.amt[k],p.goal[k])==='high'):[];
+  let alert='';
+  if(!p.days)alert='오늘 먹은 음식을 기록하면 부족한 영양소를 알려 드려요.';
+  else{const parts=[];if(lows.length)parts.push(lows.map(k=>`<b>${NM[k][0]}</b>`).join(', ')+'이(가) 가장 부족해요');if(highs.length)parts.push(highs.map(k=>`<b>${NM[k][0]}</b>`).join(', ')+'은(는) 권장량을 넘었어요');alert=parts.join('. ')+(parts.length?'.':'영양 균형이 좋아요.')}
+  const ws=weekStart(d),we=addDays(ws,6);
+  return `
+  <div class="quick">
+    <button class="btn" data-act="add-ex" type="button"><span class="c-ex">●</span><b>운동 추가</b></button>
+    <button class="btn" data-act="add-rd" type="button"><span class="c-rd">●</span><b>독서 추가</b></button>
+    <button class="btn" data-act="add-food" type="button"><span class="c-diet">●</span><b>음식 추가</b></button>
+  </div>
+  ${S.exercise.length+S.reading.length+S.meals.length===0&&Store.ready?`<div class="panel">${emptyState('아직 기록이 없어요. 위 버튼으로 첫 기록을 남기거나, 예시 데이터로 화면을 먼저 둘러보세요.',sampleBtn())}</div>`:''}
+  <div>
+    <div class="sec-head"><h2>오늘</h2><span class="sub">${fmtD(d)}</span></div>
+  </div>
+  <div class="grid g3 stack">
+    <div class="panel stat"><span class="label c-ex">운동</span><span class="v">${sumMin(ex)}<small>분</small></span><span class="k">${ex.length?ex.map(e=>esc(e.type)).join(' · ')+' · '+ex.reduce((s,e)=>s+exKcal(e),0)+'kcal 소모':'기록 없음'}</span></div>
+    <div class="panel stat"><span class="label c-rd">독서</span><span class="v">${sumMin(rd)}<small>분</small></span><span class="k">${rd.length?[...new Set(rd.map(r=>bookTitle(r.bookId)))].map(esc).join(' · '):'기록 없음'}</span></div>
+    <div class="panel stat"><span class="label c-diet">식단</span><span class="v">${fmtN('kcal',p.amt.kcal)}<small>/ ${fmtN('kcal',p.goal.kcal)} kcal</small></span><span class="k">${ml.length?ml.length+'가지 음식 기록':'기록 없음'}</span></div>
+  </div>
+  <div class="panel meter">${ring(sc,cssVarSafe('--accent'))}<div><div class="label">오늘의 영양 점수</div><p style="margin:4px 0 0">${alert}</p>${p.days?`<a href="#diet" class="btn ghost sm" style="padding-left:0">자세히 보기 →</a>`:''}</div></div>
+  <div class="panel">
+    <div class="sec-head"><h2 style="font-size:1.05rem">이번 주</h2><span class="sub num">${fmtD(ws)} – ${fmtD(we)}</span></div>
+    <div class="chart-box sm"><canvas id="cWeek" aria-label="이번 주 요일별 운동과 독서 시간"></canvas></div>
+  </div>
+  <div class="panel">${calendar()}</div>`;
+}
+function cssVarSafe(n){return 'var('+n+')'}
+afterRender.home=()=>{
+  const ws=weekStart(today()),days=[...Array(7)].map((_,i)=>addDays(ws,i));
+  barChart('cWeek',days.map(d=>DOW[parseD(d).getDay()]),[
+    {label:'운동(분)',data:days.map(d=>sumMin(exOn(d))),backgroundColor:cssVar('--ex')},
+    {label:'독서(분)',data:days.map(d=>sumMin(rdOn(d))),backgroundColor:cssVar('--rd')}]);
+};
+function calendar(){
+  const base=ui.calMonth||today().slice(0,7);const [y,m]=base.split('-').map(Number);
+  const first=new Date(y,m-1,1),days=new Date(y,m,0).getDate(),off=first.getDay();
+  const exS=new Set(S.exercise.map(e=>e.date)),rdS=new Set(S.reading.map(e=>e.date)),mlS=new Set(S.meals.map(e=>e.date));const t=today();
+  let cells=DOW.map(w=>`<div class="dow">${w}</div>`).join('');
+  for(let i=0;i<off;i++)cells+='<div class="d out"></div>';
+  for(let i=1;i<=days;i++){const d=y+'-'+pad(m)+'-'+pad(i);
+    cells+=`<div class="d${d===t?' today':''}"><span>${i}</span><span class="dots">${exS.has(d)?'<i style="background:var(--ex)"></i>':''}${rdS.has(d)?'<i style="background:var(--rd)"></i>':''}${mlS.has(d)?'<i style="background:var(--diet)"></i>':''}</span></div>`}
+  return `<div class="sec-head" style="margin-bottom:10px"><h2 style="font-size:1.05rem">${y}년 ${m}월</h2>
+   <span class="calnav"><button class="btn ghost sm" data-act="cal" data-dir="-1" type="button" aria-label="이전 달">‹</button><button class="btn ghost sm" data-act="cal" data-dir="0" type="button">이번 달</button><button class="btn ghost sm" data-act="cal" data-dir="1" type="button" aria-label="다음 달">›</button></span></div>
+   <div class="cal">${cells}</div>
+   <div class="legend" style="margin-top:10px"><span><i style="background:var(--ex)"></i>운동</span><span><i style="background:var(--rd)"></i>독서</span><span><i style="background:var(--diet)"></i>식단</span></div>`;
+}
+
+/* ---------- EXERCISE ---------- */
+function vExercise(){
+  const t=today(),ws=weekStart(t),ms=t.slice(0,8)+'01';
+  const wk=S.exercise.filter(e=>inRange(e.date,ws,t)),mo=S.exercise.filter(e=>inRange(e.date,ms,t));
+  const sorted=[...S.exercise].sort((a,b)=>b.date.localeCompare(a.date)||(b.ts||0)-(a.ts||0));
+  let list='',last='';
+  sorted.forEach(e=>{if(e.date!==last){list+=`<div class="daylabel">${fmtD(e.date)}</div>`;last=e.date}
+    list+=`<div class="row"><span class="tag c-ex">${esc(e.type)}</span><div class="main"><div class="m">${['강도 '+(INTENSITY[e.intensity||'mid']||INTENSITY.mid)[0],e.start&&e.end?e.start+'–'+e.end:'',e.note?esc(e.note):''].filter(Boolean).join(' · ')||'&nbsp;'}</div></div>
+    <span class="r">${e.minutes}분 · ${exKcal(e)}kcal</span><button class="btn ghost sm" data-act="edit-ex" data-id="${e.id}" type="button">수정</button></div>`});
+  return `<div class="sec-head"><h2>운동</h2><button class="btn primary" data-act="add-ex" type="button">운동 기록하기</button></div>
+  <div class="grid g3 stack">
+    <div class="panel stat"><span class="k">이번 주</span><span class="v">${fmtMin(sumMin(wk))}</span><span class="k">${wk.length}회</span></div>
+    <div class="panel stat"><span class="k">이번 달</span><span class="v">${fmtMin(sumMin(mo))}</span><span class="k">${mo.reduce((s,e)=>s+exKcal(e),0).toLocaleString()}kcal 소모</span></div>
+    <div class="panel stat"><span class="k">연속 운동</span><span class="v">${streak()}<small>일</small></span><span class="k">오늘 또는 어제까지 이어진 날</span></div>
+  </div>
+  <div class="panel"><div class="list">${list||emptyState('운동 기록이 없어요. 오늘 한 운동을 남겨 보세요.',sampleBtn())}</div></div>
+  <p class="note">소모 칼로리는 운동 종류별 MET 값 × 체중 × 시간으로 추정하고, 강도에 따라 가볍게 ×0.8, 격렬하게 ×1.25를 적용해요.</p>`;
+}
+
+/* ---------- READING ---------- */
+function bookTitle(id){const b=S.books.find(b=>b.id===id);return b?b.title:'(삭제된 책)'}
+function bookMin(id){return sumMin(S.reading.filter(r=>r.bookId===id))}
+function stars(n){n=+n||0;return '★'.repeat(n)+'☆'.repeat(5-n)}
+function hl(text,q){const s=esc(text);if(!q)return s;const re=new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/&/g,'&amp;').replace(/</g,'&lt;'),'gi');return s.replace(re,m=>`<mark class="hl">${m}</mark>`)}
+function vReading(){
+  const t=today(),ms=t.slice(0,8)+'01';
+  const moMin=sumMin(S.reading.filter(r=>inRange(r.date,ms,t)));
+  const doneMo=S.books.filter(b=>b.status==='done'&&b.doneDate&&inRange(b.doneDate,ms,t)).length;
+  const order={reading:0,done:1,stop:2};
+  const books=[...S.books].sort((a,b)=>(order[a.status]??3)-(order[b.status]??3)||(b.ts||0)-(a.ts||0));
+  const groups={};books.forEach(b=>{const g=(b.genre||'').trim()||'장르 없음';(groups[g]=groups[g]||[]).push(b)});
+  const gorder=genres();const gnames=Object.keys(groups).sort((a,b)=>{const ia=a==='장르 없음'?1e9:(gorder.indexOf(a)<0?1e8:gorder.indexOf(a)),ib=b==='장르 없음'?1e9:(gorder.indexOf(b)<0?1e8:gorder.indexOf(b));return ia-ib||a.localeCompare(b,'ko')});
+  if(ui.rdGenre!=='전체'&&!groups[ui.rdGenre])ui.rdGenre='전체';
+  const q=ui.rdQuery.trim().toLowerCase();
+  let results='';
+  if(q){const hits=S.reading.filter(r=>((r.note||'')+' '+bookTitle(r.bookId)).toLowerCase().includes(q)).sort((a,b)=>b.date.localeCompare(a.date));
+    results=`<div class="panel"><div class="label" style="margin-bottom:6px">"${esc(ui.rdQuery)}" 검색 결과 ${hits.length}건</div><div class="list">${hits.map(r=>`<div class="row"><div class="main"><div class="t">${hl(bookTitle(r.bookId),ui.rdQuery)}</div><div class="m">${fmtD(r.date)} · ${r.minutes}분</div>${r.note?`<div class="quote">${hl(r.note,ui.rdQuery)}</div>`:''}</div></div>`).join('')||emptyState('일치하는 독서 기록이 없어요.')}</div></div>`}
+  return `<div class="sec-head"><h2>독서</h2><span class="quick" style="flex:none"><button class="btn" data-act="add-book" type="button">책 추가</button><button class="btn primary" data-act="add-rd" type="button">독서 기록하기</button></span></div>
+  <div class="grid g3 stack">
+    <div class="panel stat"><span class="k">이번 달 독서 시간</span><span class="v">${fmtMin(moMin)}</span></div>
+    <div class="panel stat"><span class="k">이번 달 완독</span><span class="v">${doneMo}<small>권</small></span></div>
+    <div class="panel stat"><span class="k">읽는 중</span><span class="v">${S.books.filter(b=>b.status==='reading').length}<small>권</small></span></div>
+  </div>
+  <input class="search" id="rdSearch" type="search" placeholder="독서 기록·책 제목 검색" value="${esc(ui.rdQuery)}" aria-label="독서 기록 검색">
+  ${results}
+  ${S.books.length?`<div class="favs" role="group" aria-label="장르로 보기">${['전체',...gnames].map(g=>`<button type="button" data-act="rgenre" data-v="${esc(g)}" aria-pressed="${ui.rdGenre===g}">${esc(g)} <span class="num" style="opacity:.7">${g==='전체'?S.books.length:(groups[g]||[]).length}</span></button>`).join('')}</div>`:''}
+  ${S.books.length?gnames.filter(g=>ui.rdGenre==='전체'||ui.rdGenre===g).map(g=>{const bs=groups[g];const mins=bs.reduce((s,b)=>s+bookMin(b.id),0);
+    return `<div class="panel"><div class="sec-head" style="margin-bottom:4px"><h2 style="font-size:1.08rem">${esc(g)}</h2><span class="sub num">${bs.length}권 · 완독 ${bs.filter(b=>b.status==='done').length}권 · ${fmtMin(mins)}</span></div><div class="list">${bs.map(bookRow).join('')}</div></div>`}).join(''):`<div class="panel">${emptyState('등록한 책이 없어요. 읽고 있는 책을 추가해 보세요.',sampleBtn())}</div>`}`;
+}
+function bookRow(b){const n=S.reading.filter(r=>r.bookId===b.id).length;
+    return `<button class="book" data-act="open-book" data-id="${b.id}" type="button"><span class="spine" style="${b.status==='done'?'background:var(--ok)':b.status==='stop'?'background:var(--muted)':''}"></span>
+    <span class="main"><span class="t">${esc(b.title)}</span><br><span class="m" style="color:var(--muted);font-size:.85rem">${esc(b.author||'저자 미상')} · ${esc(b.genre||'장르 없음')} · ${n}회 · ${fmtMin(bookMin(b.id))}</span>
+    ${b.status==='done'&&b.rating?`<br><span class="stars" aria-label="별점 ${b.rating}점">${stars(b.rating)}</span> <span style="font-size:.85rem">${esc(b.review||'')}</span>`:''}</span>
+    <span class="tag ${b.status==='done'?'c-ok':b.status==='reading'?'c-rd':''}" style="${b.status==='stop'?'color:var(--muted)':''}">${STATUS[b.status]||'읽는 중'}</span></button>`;
+}
+afterRender.reading=()=>{const s=$('#rdSearch');if(!s)return;let t;s.addEventListener('input',()=>{clearTimeout(t);t=setTimeout(()=>{ui.rdQuery=s.value;const pos=s.selectionStart;render();const n=$('#rdSearch');n.focus();n.setSelectionRange(pos,pos)},250)})};
+
+/* ---------- DIET ---------- */
+function vDiet(){
+  const d=ui.dietDate,ml=mealsOn(d);
+  const len=ui.dietPeriod==='today'?1:7;const p=period(d,len);
+  let meals='';
+  MEALS.forEach(([k,lb])=>{const items=ml.filter(m=>m.meal===k);const kc=items.reduce((s,m)=>s+(m.n?.kcal||0),0);
+    meals+=`<div class="meal"><div class="meal-head"><b>${lb}</b><span><span class="r">${Math.round(kc)}kcal</span> <button class="btn ghost sm" data-act="add-food" data-meal="${k}" type="button">+ 추가</button></span></div>
+    <div class="list">${items.map(m=>`<div class="row"><div class="main"><div class="t">${esc(m.name)}</div><div class="m">${esc(m.amountLabel||'')}</div></div><span class="r">${Math.round(m.n?.kcal||0)}kcal</span><button class="btn ghost sm" data-act="del-food" data-id="${m.id}" type="button" aria-label="${esc(m.name)} 삭제">삭제</button></div>`).join('')}</div></div>`});
+  const sc=score(p);
+  let bars='';GROUPS.forEach(([g,ks])=>{bars+=`<div class="label" style="margin-top:12px">${g}</div>`+ks.map(k=>bar(k,p.amt[k],p.goal[k])).join('')});
+  const lows=NK.filter(k=>!LIMITS.includes(k)&&status(k,p.amt[k],p.goal[k])==='low').sort((a,b)=>p.amt[a]/p.goal[a]-p.amt[b]/p.goal[b]);
+  const highs=NK.filter(k=>status(k,p.amt[k],p.goal[k])==='high');
+  const defs=lows.map(k=>{const gap=p.goal[k]-p.amt[k];const rf=richFoods(k);const top=rf[0];
+    const sug=top?`다음 식사에 <b>${esc(top.f.name)} ${esc(top.f.serv)}</b>을(를) 더하면 부족분의 약 ${Math.min(100,Math.round(top.v/gap*100))}%를 채울 수 있어요.`:'';
+    return `<div class="def"><h3>${NM[k][0]} <span class="tag c-low">${Math.round(p.amt[k]/p.goal[k]*100)}%</span><span class="sub" style="font-size:.82rem;color:var(--muted);font-weight:400">${fmtN(k,gap)}${NM[k][1]} 부족</span></h3>
+    <p>${WHY[k]}</p><div class="foods">${rf.map(x=>`<span>${esc(x.f.name)} ${esc(x.f.serv)} · ${fmtN(k,x.v)}${NM[k][1]}</span>`).join('')}</div>
+    ${sug?`<div class="suggest">${sug}</div>`:''}${SUPP[k]?`<p class="note">${SUPP[k]}</p>`:''}</div>`}).join('');
+  const exc=highs.map(k=>`<div class="def"><h3>${NM[k][0]} <span class="tag c-high">${LIMITS.includes(k)?'권장 상한 초과':UL[k]&&p.amt[k]>UL[k]?'상한섭취량 초과':'많이 섭취'}</span><span style="font-size:.82rem;color:var(--muted);font-weight:400">${fmtN(k,p.amt[k])}${NM[k][1]} / 기준 ${fmtN(k,LIMITS.includes(k)?p.goal[k]:UL[k]&&p.amt[k]>UL[k]?UL[k]:p.goal[k])}${NM[k][1]}</span></h3><p>${EXCESS[k]||EXCESS._ul}</p></div>`).join('');
+  const exk=exOn(d).reduce((s,e)=>s+exKcal(e),0);
+  return `<div class="sec-head"><h2>식단 & 영양</h2><button class="btn primary" data-act="add-food" type="button">음식 추가</button></div>
+  ${!hasProfile()?`<div class="panel" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between"><span>성별·나이·키·체중을 입력하면 나에게 맞는 권장 섭취량으로 계산해요. 지금은 성인 기준값을 쓰고 있어요.</span><button class="btn sm" data-act="settings" type="button">내 정보 입력</button></div>`:''}
+  <div class="datebar"><button class="btn ghost sm" data-act="dday" data-dir="-1" type="button" aria-label="전날">‹</button><input type="date" id="dietDate" value="${d}" aria-label="날짜"><button class="btn ghost sm" data-act="dday" data-dir="1" type="button" aria-label="다음 날">›</button>${d!==today()?'<button class="btn ghost sm" data-act="dday" data-dir="0" type="button">오늘</button>':''}</div>
+  <div class="grid g2 stack">
+    <div class="panel"><div class="label">먹은 음식</div>${ml.length?'':emptyState('이 날 기록한 음식이 없어요.',sampleBtn())}${meals}</div>
+    <div class="panel" style="display:flex;flex-direction:column;gap:12px">
+      <div class="sec-head"><span class="label">영양 분석</span><span class="seg" role="group" aria-label="분석 기간"><button type="button" data-act="dper" data-v="today" aria-pressed="${ui.dietPeriod==='today'}">이 날</button><button type="button" data-act="dper" data-v="7d" aria-pressed="${ui.dietPeriod==='7d'}">최근 7일 평균</button></span></div>
+      <div class="meter">${ring(sc,'var(--accent)')}<div><div style="font-weight:600">영양 점수</div><div class="sub" style="color:var(--muted);font-size:.85rem">${p.days?`권장량 충족도 기준${len>1?` · 기록한 ${p.days}일 평균`:''}`:'음식을 기록하면 계산돼요'}<br>칼로리 목표 ${fmtN('kcal',p.goal.kcal)}kcal${exk&&len===1?` (운동 ${exk}kcal 반영)`:''}</div></div></div>
+      <div class="legend"><span><i class="bg-low"></i>부족 (70% 미만)</span><span><i class="bg-ok"></i>적정</span><span><i class="bg-high"></i>과다·상한 초과</span></div>
+      <div>${bars}</div>
+    </div>
+  </div>
+  ${p.days?`<div class="panel"><div class="sec-head" style="margin-bottom:8px"><h2 style="font-size:1.1rem">부족한 영양소</h2><span class="sub">부족한 순서</span></div>${defs||'<p style="margin:0;color:var(--muted)">부족한 영양소가 없어요. 지금처럼 골고루 드세요.</p>'}</div>
+  ${exc?`<div class="panel"><div class="sec-head" style="margin-bottom:8px"><h2 style="font-size:1.1rem">줄이면 좋은 것</h2></div>${exc}</div>`:''}`:''}
+  <footer class="disc">권장 섭취량은 한국인 영양소 섭취기준을 바탕으로 한 추정치이고, 음식 영양 성분은 1회 제공량 기준 근사치예요. 이 정보는 참고용이며 의학적 진단을 대신하지 않습니다.</footer>`;
+}
+afterRender.diet=()=>{const i=$('#dietDate');i&&i.addEventListener('change',()=>{if(i.value){ui.dietDate=i.value;render()}})};
+
+/* ---------- STATS ---------- */
+function vStats(){
+  const t=today(),ws=weekStart(t),ms=t.slice(0,8)+'01';
+  const wk=sumMin(S.exercise.filter(e=>inRange(e.date,ws,t))),mo=sumMin(S.exercise.filter(e=>inRange(e.date,ms,t)));
+  const rmo=sumMin(S.reading.filter(r=>inRange(r.date,ms,t)));const done=S.books.filter(b=>b.status==='done'&&b.doneDate&&inRange(b.doneDate,ms,t)).length;
+  // frequently deficient over 30 days
+  const cnt={};let dd=0;for(let i=0;i<30;i++){const d=addDays(t,-i);if(!mealsOn(d).length)continue;dd++;const a=intake(d),g=goalFor(d);NK.forEach(k=>{if(!LIMITS.includes(k)&&status(k,a[k],g[k])==='low')cnt[k]=(cnt[k]||0)+1})}
+  const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  return `<div class="sec-head"><h2>통계</h2></div>
+  <div class="panel"><div class="label c-ex">운동</div>
+    <div class="grid g3" style="margin:10px 0 14px"><div class="stat"><span class="k">이번 주</span><span class="v">${fmtMin(wk)}</span></div><div class="stat"><span class="k">이번 달</span><span class="v">${fmtMin(mo)}</span></div><div class="stat"><span class="k">연속 운동</span><span class="v">${streak()}<small>일</small></span></div></div>
+    ${S.exercise.length?'<div class="label">이번 달 운동 종류별 시간</div><div class="chart-box sm"><canvas id="cExType" aria-label="운동 종류별 비율"></canvas></div>':emptyState('운동 기록이 쌓이면 종류별 비율을 보여 드려요.')}</div>
+  <div class="panel"><div class="label c-rd">독서</div>
+    <div class="grid g3" style="margin:10px 0 14px"><div class="stat"><span class="k">이번 달 독서 시간</span><span class="v">${fmtMin(rmo)}</span></div><div class="stat"><span class="k">이번 달 완독</span><span class="v">${done}<small>권</small></span></div><div class="stat"><span class="k">전체 완독</span><span class="v">${S.books.filter(b=>b.status==='done').length}<small>권</small></span></div></div>
+    ${S.books.length?'<div class="label">장르별 독서 시간 (전체)</div><div class="chart-box sm"><canvas id="cGenre" aria-label="장르별 독서 비율"></canvas></div>':emptyState('책을 추가하면 장르별 비율을 보여 드려요.')}</div>
+  <div class="panel"><div class="sec-head"><span class="label c-diet">영양 섭취 추이</span>
+    <span style="display:flex;gap:8px;flex-wrap:wrap"><select id="statNut" class="btn sm" aria-label="영양소 선택">${NK.map(k=>`<option value="${k}"${k===ui.statNut?' selected':''}>${NM[k][0]}</option>`).join('')}</select>
+    <span class="seg" role="group" aria-label="기간"><button type="button" data-act="slen" data-v="7" aria-pressed="${ui.statLen===7}">7일</button><button type="button" data-act="slen" data-v="30" aria-pressed="${ui.statLen===30}">30일</button></span></span></div>
+    <div class="chart-box" style="margin-top:10px"><canvas id="cNut" aria-label="영양소 섭취 추이"></canvas></div>
+    <p class="note" style="margin-top:10px">권장량 대비 비율(%)이에요. 점선은 100%, 음식을 기록하지 않은 날은 비어 있어요.</p>
+    <div class="label" style="margin-top:14px">최근 30일 자주 부족한 영양소</div>
+    ${top.length?`<div class="list">${top.map(([k,n],i)=>`<div class="row"><span class="num" style="color:var(--muted)">${i+1}</span><div class="main"><div class="t">${NM[k][0]}</div><div class="m">${WHY[k]}</div></div><span class="r c-low">${n}/${dd}일</span></div>`).join('')}</div>`:emptyState(dd?'최근 30일 동안 자주 부족한 영양소가 없어요.':'식단을 기록하면 자주 부족한 영양소를 찾아 드려요.')}
+  </div>`;
+}
+afterRender.stats=()=>{
+  const t=today(),ms=t.slice(0,8)+'01';const pal=[cssVar('--ex'),cssVar('--rd'),cssVar('--diet'),cssVar('--accent'),cssVar('--high'),cssVar('--muted'),cssVar('--low')];
+  if($('#cExType')){const m={};S.exercise.filter(e=>inRange(e.date,ms,t)).forEach(e=>m[e.type]=(m[e.type]||0)+(+e.minutes||0));const ks=Object.keys(m);
+    if(ks.length)donut('cExType',ks,ks.map(k=>m[k]),pal);else $('#cExType').parentElement.outerHTML=emptyState('이번 달 운동 기록이 아직 없어요.')}
+  if($('#cGenre')){const m={};S.reading.forEach(r=>{const b=S.books.find(x=>x.id===r.bookId);const g=(b&&b.genre)||'기타';m[g]=(m[g]||0)+(+r.minutes||0)});const ks=Object.keys(m);
+    if(ks.length)donut('cGenre',ks,ks.map(k=>m[k]),pal);else $('#cGenre').parentElement.outerHTML=emptyState('독서 기록이 쌓이면 장르별 비율을 보여 드려요.')}
+  const k=ui.statNut,n=ui.statLen;const days=[...Array(n)].map((_,i)=>addDays(t,i-n+1));
+  const data=days.map(d=>{if(!mealsOn(d).length)return null;return Math.round(intake(d)[k]/goalFor(d)[k]*100)});
+  lineChart('cNut',days.map(d=>{const x=parseD(d);return (x.getMonth()+1)+'/'+x.getDate()}),data,NM[k][0]);
+  $('#statNut').addEventListener('change',e=>{ui.statNut=e.target.value;render()});
+};
+
+/* ---------- charts ---------- */
+function baseOpts(){const tc=cssVar('--muted'),gc=cssVar('--line');Chart.defaults.font.family=cssVar('--f-body');
+  return {responsive:true,maintainAspectRatio:false,animation:matchMedia('(prefers-reduced-motion: reduce)').matches?false:{duration:400},
+  plugins:{legend:{labels:{color:tc,boxWidth:10,boxHeight:10,usePointStyle:true}}},
+  scales:{x:{ticks:{color:tc},grid:{display:false},border:{color:gc}},y:{ticks:{color:tc},grid:{color:gc},border:{display:false},beginAtZero:true}}}}
+function barChart(id,labels,ds){const el=$('#'+id);if(!el||!window.Chart)return;const o=baseOpts();
+  charts[id]=new Chart(el,{type:'bar',data:{labels,datasets:ds.map(d=>({...d,borderRadius:4,maxBarThickness:18}))},options:o})}
+function donut(id,labels,data,pal){const el=$('#'+id);if(!el||!window.Chart)return;const o=baseOpts();delete o.scales;o.plugins.legend.position='right';
+  o.plugins.tooltip={callbacks:{label:c=>' '+c.label+': '+fmtMin(c.raw)}};
+  charts[id]=new Chart(el,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:labels.map((_,i)=>pal[i%pal.length]),borderColor:cssVar('--surface'),borderWidth:2}]},options:{...o,cutout:'62%'}})}
+function lineChart(id,labels,data,name){const el=$('#'+id);if(!el||!window.Chart)return;const o=baseOpts();const ac=cssVar('--accent');
+  o.plugins.legend.display=false;o.scales.y.ticks.callback=v=>v+'%';o.plugins.tooltip={callbacks:{label:c=>' '+name+' '+c.raw+'%'}};
+  const max=Math.max(120,...data.filter(v=>v!=null))*1.08;o.scales.y.suggestedMax=max;
+  charts[id]=new Chart(el,{type:'line',data:{labels,datasets:[
+    {data,borderColor:ac,backgroundColor:ac+'22',fill:true,tension:.3,pointRadius:3,pointBackgroundColor:ac,spanGaps:false},
+    {data:labels.map(()=>100),borderColor:cssVar('--muted'),borderDash:[4,4],borderWidth:1,pointRadius:0,fill:false}]},options:o})}
+
+/* ---------- sheets ---------- */
+let sheetOpen=false;
+function openSheet(title,body,onMount){
+  sheetOpen=true;const root=$('#sheetRoot');
+  root.innerHTML=`<div class="backdrop" id="bd"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle"><div class="sheet-head"><h2 id="shTitle">${title}</h2><button class="btn ghost" data-close type="button" aria-label="닫기">닫기</button></div>${body}</div></div>`;
+  const bd=$('#bd');bd.addEventListener('click',e=>{if(e.target===bd||e.target.closest('[data-close]'))closeSheet()});
+  document.addEventListener('keydown',escClose);onMount&&onMount(bd);
+  const f=bd.querySelector('input:not([type=hidden]),select,textarea');f&&setTimeout(()=>f.focus({preventScroll:true}),30);
+}
+function escClose(e){if(e.key==='Escape')closeSheet()}
+function closeSheet(){sheetOpen=false;$('#sheetRoot').innerHTML='';document.removeEventListener('keydown',escClose);render()}
+function confirmIn(container,msg,onYes){const box=document.createElement('div');box.className='picked';
+  box.innerHTML=`<span>${msg}</span><span style="display:flex;gap:6px"><button class="btn sm" type="button" data-n>취소</button><button class="btn sm danger" type="button" data-y>삭제</button></span>`;
+  container.appendChild(box);box.querySelector('[data-n]').onclick=()=>box.remove();box.querySelector('[data-y]').onclick=onYes;box.querySelector('[data-y]').focus()}
+function selectWithCustom(id,label,opts,val){
+  const has=!val||opts.includes(val);
+  return `<div class="field"><label for="${id}">${label}</label><select id="${id}">${opts.map(o=>`<option${o===val?' selected':''}>${esc(o)}</option>`).join('')}${!has?`<option selected>${esc(val)}</option>`:''}<option value="__new">+ 직접 입력</option></select>
+  <input id="${id}_new" placeholder="새 ${label} 이름" hidden></div>`}
+function wireCustom(bd,id){const s=bd.querySelector('#'+id),n=bd.querySelector('#'+id+'_new');s.addEventListener('change',()=>{n.hidden=s.value!=='__new';if(!n.hidden)n.focus()})}
+function readCustom(bd,id){const s=bd.querySelector('#'+id);return s.value==='__new'?bd.querySelector('#'+id+'_new').value.trim():s.value}
+
+/* exercise form: 30분 단위 드롭다운 */
+function durOpts(cur){const v=[];for(let m=30;m<=300;m+=30)v.push(m);if(cur&&!v.includes(+cur))v.push(+cur);v.sort((a,b)=>a-b);
+  return v.map(m=>`<option value="${m}"${m===+cur?' selected':''}>${fmtMin(m)}</option>`).join('')}
+function clockOpts(cur){let h='<option value="">선택</option>';for(let t=0;t<1440;t+=30){const s=pad(Math.floor(t/60))+':'+pad(t%60);const hr=Math.floor(t/60);
+  h+=`<option value="${s}"${s===cur?' selected':''}>${hr<12?'오전':'오후'} ${hr%12||12}:${pad(t%60)}</option>`}return h}
+function exForm(e){
+  e=e||{date:today(),type:'러닝',minutes:''};
+  openSheet(e.id?'운동 기록 수정':'운동 기록',`
+  <form id="f" class="fields" novalidate>
+    <div class="field"><label for="exDate">날짜</label><input type="date" id="exDate" value="${e.date}" required></div>
+    ${selectWithCustom('exType','운동 종류',exTypes(),e.type)}
+    <div class="field"><label for="exMin">운동 시간</label><select id="exMin">${durOpts(e.minutes||30)}</select></div>
+    <div class="field"><span class="lb">또는 시작·종료 시각</span><span style="display:flex;gap:6px"><select id="exS" aria-label="시작 시각">${clockOpts(e.start)}</select><select id="exE" aria-label="종료 시각">${clockOpts(e.end)}</select></span></div>
+    <div class="field"><label for="exInt">운동 강도</label><select id="exInt">${Object.entries(INTENSITY).map(([k,v])=>`<option value="${k}"${k===(e.intensity||'mid')?' selected':''}>${v[0]} · ${v[1]}</option>`).join('')}</select></div>
+    <div class="field"><label for="exNote">메모 (선택)</label><input id="exNote" value="${esc(e.note||'')}" placeholder="컨디션, 거리 등"></div>
+    <p class="err full" id="err" hidden></p>
+    <div class="actions full">${e.id?'<button class="btn danger" type="button" id="del">삭제</button><span class="grow"></span>':''}<button class="btn" type="button" data-close>취소</button><button class="btn primary" type="submit">저장</button></div>
+  </form>`,bd=>{
+    wireCustom(bd,'exType');
+    const calc=()=>{const s=$('#exS',bd).value,t=$('#exE',bd).value;if(s&&t){let m=(+t.slice(0,2)*60+ +t.slice(3))-(+s.slice(0,2)*60+ +s.slice(3));if(m<=0)m+=1440;
+      const sel=$('#exMin',bd);if(![...sel.options].some(o=>+o.value===m))sel.insertAdjacentHTML('beforeend',`<option value="${m}">${fmtMin(m)}</option>`);sel.value=m}};
+    $('#exS',bd).addEventListener('change',calc);$('#exE',bd).addEventListener('change',calc);
+    $('#f',bd).addEventListener('submit',async ev=>{ev.preventDefault();const type=readCustom(bd,'exType'),min=+$('#exMin',bd).value,date=$('#exDate',bd).value,err=$('#err',bd);
+      if(!type){err.textContent='운동 종류를 입력해 주세요.';err.hidden=false;return}
+      if(!date){err.textContent='날짜를 골라 주세요.';err.hidden=false;return}
+      if(!(min>0)){err.textContent='운동 시간을 1분 이상으로 입력해 주세요.';err.hidden=false;return}
+      if(!exTypes().includes(type))Store.setProfile({exTypes:[...(S.profile.exTypes||[]),type]});
+      Store.put('exercise',{...e,date,type,minutes:min,intensity:$('#exInt',bd).value,start:$('#exS',bd).value||null,end:$('#exE',bd).value||null,note:$('#exNote',bd).value.trim(),ts:e.ts||Date.now()});closeSheet();toast('운동 기록을 저장했어요')});
+    e.id&&$('#del',bd).addEventListener('click',()=>confirmIn($('#f',bd),'이 운동 기록을 삭제할까요?',()=>{Store.del('exercise',e.id);closeSheet();toast('삭제했어요')}));
+  });
+}
+
+/* book form */
+function bookForm(b){
+  b=b||{status:'reading',genre:'소설'};
+  openSheet(b.id?'책 정보 수정':'책 추가',`
+  <form id="f" class="fields" novalidate>
+    <div class="field full"><label for="bkT">제목</label><input id="bkT" value="${esc(b.title||'')}" required></div>
+    <div class="field"><label for="bkA">저자</label><input id="bkA" value="${esc(b.author||'')}"></div>
+    ${selectWithCustom('bkG','장르',genres(),b.genre)}
+    <div class="field"><label for="bkS">상태</label><select id="bkS">${Object.entries(STATUS).map(([k,v])=>`<option value="${k}"${k===b.status?' selected':''}>${v}</option>`).join('')}</select></div>
+    <div class="field" id="rateBox"><span class="lb">별점</span><span class="ratepick" role="group" aria-label="별점">${[1,2,3,4,5].map(n=>`<button type="button" data-r="${n}" aria-pressed="${(b.rating||0)>=n}" aria-label="${n}점">★</button>`).join('')}</span></div>
+    <div class="field full" id="revBox"><label for="bkR">한 줄 평</label><input id="bkR" value="${esc(b.review||'')}" maxlength="120"></div>
+    <p class="err full" id="err" hidden></p>
+    <div class="actions full">${b.id?'<button class="btn danger" type="button" id="del">책 삭제</button><span class="grow"></span>':''}<button class="btn" type="button" data-close>취소</button><button class="btn primary" type="submit">저장</button></div>
+  </form>`,bd=>{
+    wireCustom(bd,'bkG');let rating=b.rating||0;
+    const sync=()=>{const done=$('#bkS',bd).value==='done';$('#rateBox',bd).hidden=!done;$('#revBox',bd).hidden=!done};sync();$('#bkS',bd).addEventListener('change',sync);
+    bd.querySelectorAll('[data-r]').forEach(x=>x.addEventListener('click',()=>{rating=+x.dataset.r;bd.querySelectorAll('[data-r]').forEach(y=>y.setAttribute('aria-pressed',+y.dataset.r<=rating))}));
+    $('#f',bd).addEventListener('submit',ev=>{ev.preventDefault();const title=$('#bkT',bd).value.trim(),g=readCustom(bd,'bkG'),st=$('#bkS',bd).value;
+      if(!title){const e=$('#err',bd);e.textContent='책 제목을 입력해 주세요.';e.hidden=false;return}
+      if(g&&!genres().includes(g))Store.setProfile({genres:[...(S.profile.genres||[]),g]});
+      const rec={...b,title,author:$('#bkA',bd).value.trim(),genre:g,status:st,rating:st==='done'?rating:(b.rating||0),review:st==='done'?$('#bkR',bd).value.trim():(b.review||''),ts:b.ts||Date.now()};
+      if(st==='done'&&!b.doneDate)rec.doneDate=today();if(st!=='done')delete rec.doneDate;
+      Store.put('books',rec);closeSheet();toast(st==='done'&&b.status!=='done'?'완독을 축하해요!':'책을 저장했어요')});
+    b.id&&$('#del',bd).addEventListener('click',()=>confirmIn($('#f',bd),'책과 이 책의 독서 기록을 모두 삭제할까요?',async()=>{
+      const ids=S.reading.filter(r=>r.bookId===b.id).map(r=>r.id);closeSheet();for(const id of ids)await Store.del('reading',id);await Store.del('books',b.id);toast('삭제했어요')}));
+  });
+}
+
+/* reading session form */
+function rdForm(r,presetBook){
+  r=r||{date:today(),bookId:presetBook||(S.books.find(b=>b.status==='reading')||S.books[0]||{}).id||'__new'};
+  const opts=[...S.books].sort((a,b)=>(a.status==='reading'?0:1)-(b.status==='reading'?0:1)).map(b=>`<option value="${b.id}"${b.id===r.bookId?' selected':''}>${esc(b.title)}${b.status==='done'?' (완독)':''}</option>`).join('');
+  openSheet(r.id?'독서 기록 수정':'독서 기록',`
+  <form id="f" class="fields" novalidate>
+    <div class="field"><label for="rdDate">날짜</label><input type="date" id="rdDate" value="${r.date}"></div>
+    <div class="field"><label for="rdBook">책</label><select id="rdBook">${opts}<option value="__new"${r.bookId==='__new'?' selected':''}>+ 새 책 추가</option></select></div>
+    <div class="full fields" id="newBook" style="padding:0">
+      <div class="field"><label for="nbT">새 책 제목</label><input id="nbT"></div>
+      <div class="field"><label for="nbA">저자</label><input id="nbA"></div>
+      ${selectWithCustom('nbG','장르',genres(),'소설')}
+    </div>
+    <div class="field"><label for="rdMin">독서 시간 (분)</label><input id="rdMin" type="number" inputmode="numeric" min="1" value="${r.minutes||''}" placeholder="예: 40"></div>
+    <div class="field"><span class="lb">읽은 페이지 (선택)</span><span style="display:flex;gap:6px;align-items:center"><input id="pF" type="number" min="0" value="${r.pageFrom??''}" aria-label="시작 페이지" placeholder="시작">~<input id="pT" type="number" min="0" value="${r.pageTo??''}" aria-label="끝 페이지" placeholder="끝"></span></div>
+    <div class="field full"><label for="rdNote">독서 기록</label><textarea id="rdNote" placeholder="인상 깊은 구절, 생각이나 느낌을 자유롭게 적어 보세요">${esc(r.note||'')}</textarea></div>
+    <p class="err full" id="err" hidden></p>
+    <div class="actions full">${r.id?'<button class="btn danger" type="button" id="del">삭제</button><span class="grow"></span>':''}<button class="btn" type="button" data-close>취소</button><button class="btn primary" type="submit">저장</button></div>
+  </form>`,bd=>{
+    wireCustom(bd,'nbG');const nb=$('#newBook',bd),sel=$('#rdBook',bd);const sync=()=>{nb.hidden=sel.value!=='__new'};sync();sel.addEventListener('change',sync);
+    $('#f',bd).addEventListener('submit',ev=>{ev.preventDefault();const err=$('#err',bd);const min=+$('#rdMin',bd).value;let bookId=sel.value;
+      if(bookId==='__new'){const t=$('#nbT',bd).value.trim();if(!t){err.textContent='새 책 제목을 입력해 주세요.';err.hidden=false;return}
+        const g=readCustom(bd,'nbG');if(g&&!genres().includes(g))Store.setProfile({genres:[...(S.profile.genres||[]),g]});
+        const b={id:rid(),title:t,author:$('#nbA',bd).value.trim(),genre:g,status:'reading',ts:Date.now()};Store.put('books',b);bookId=b.id}
+      if(!(min>0)){err.textContent='독서 시간을 1분 이상으로 입력해 주세요.';err.hidden=false;return}
+      const pf=$('#pF',bd).value,pt=$('#pT',bd).value;
+      Store.put('reading',{...r,bookId,date:$('#rdDate',bd).value||today(),minutes:min,pageFrom:pf===''?null:+pf,pageTo:pt===''?null:+pt,note:$('#rdNote',bd).value.trim(),ts:r.ts||Date.now()});
+      closeSheet();toast('독서 기록을 저장했어요')});
+    r.id&&$('#del',bd).addEventListener('click',()=>confirmIn($('#f',bd),'이 독서 기록을 삭제할까요?',()=>{Store.del('reading',r.id);closeSheet();toast('삭제했어요')}));
+  });
+}
+function bookSheet(id){const b=S.books.find(x=>x.id===id);if(!b)return;
+  const ss=S.reading.filter(r=>r.bookId===id).sort((a,c)=>c.date.localeCompare(a.date));
+  openSheet(esc(b.title),`
+  <div class="m" style="color:var(--muted)">${esc(b.author||'저자 미상')} · ${esc(b.genre||'장르 없음')} · <span class="tag">${STATUS[b.status]}</span></div>
+  ${b.status==='done'&&b.rating?`<div><span class="stars">${stars(b.rating)}</span> ${esc(b.review||'')}</div>`:''}
+  <div class="grid g2"><div class="stat"><span class="k">총 독서 시간</span><span class="v">${fmtMin(bookMin(id))}</span></div><div class="stat"><span class="k">기록</span><span class="v">${ss.length}<small>회</small></span></div></div>
+  <div class="actions"><button class="btn" id="eb" type="button">책 정보 수정</button><button class="btn primary" id="ar" type="button">이 책 독서 기록</button></div>
+  <div class="list">${ss.map(r=>`<div class="row"><div class="main"><div class="t">${fmtD(r.date)} · ${r.minutes}분${r.pageFrom!=null&&r.pageTo!=null?` · p.${r.pageFrom}–${r.pageTo}`:''}</div>${r.note?`<div class="quote">${esc(r.note)}</div>`:''}</div><button class="btn ghost sm" data-rid="${r.id}" type="button">수정</button></div>`).join('')||emptyState('아직 이 책의 독서 기록이 없어요.')}</div>`,bd=>{
+    $('#eb',bd).onclick=()=>{closeSheet();bookForm(b)};$('#ar',bd).onclick=()=>{closeSheet();rdForm(null,id)};
+    bd.querySelectorAll('[data-rid]').forEach(x=>x.onclick=()=>{const r=S.reading.find(y=>y.id===x.dataset.rid);closeSheet();rdForm(r)});
+  });
+}
+
+/* food form */
+function foodForm(meal){
+  const now=new Date().getHours();meal=meal||(now<10?'breakfast':now<15?'lunch':now<21?'dinner':'snack');
+  let picked=null;
+  const favs=(S.profile.favs||[]).map(id=>allFoods().find(f=>f.id===id)).filter(Boolean);
+  openSheet('음식 추가',`
+  <div class="fields">
+    <div class="field"><label for="fdMeal">식사</label><select id="fdMeal">${MEALS.map(([k,l])=>`<option value="${k}"${k===meal?' selected':''}>${l}</option>`).join('')}</select></div>
+    <div class="field"><label for="fdDate">날짜</label><input type="date" id="fdDate" value="${ui.dietDate}"></div>
+  </div>
+  ${favs.length?`<div class="field"><span class="lb">즐겨찾기</span><div class="favs">${favs.map(f=>`<button type="button" data-fav="${f.id}">${esc(f.name)}</button>`).join('')}</div></div>`:''}
+  <div class="field"><label for="fdQ">음식 검색</label><input id="fdQ" type="search" placeholder="예: 김치찌개, 현미밥, 바나나" autocomplete="off"></div>
+  <div class="favs" id="fdCats" role="group" aria-label="음식 분류">${['전체',...new Set(allFoods().map(f=>f.cat))].map((c,i)=>`<button type="button" data-cat="${esc(c)}" aria-pressed="${i===0}">${esc(c)}</button>`).join('')}</div>
+  <div class="results" id="fdRes" role="listbox" aria-label="검색 결과"></div>
+  <div id="pick"></div>
+  <div class="actions"><button class="btn ghost" type="button" id="custom" style="margin-right:auto">목록에 없는 음식 직접 등록</button><button class="btn" type="button" data-close>닫기</button></div>`,bd=>{
+    const res=$('#fdRes',bd),q=$('#fdQ',bd);
+    let cat='전체';
+    bd.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{cat=b.dataset.cat;bd.querySelectorAll('[data-cat]').forEach(x=>x.setAttribute('aria-pressed',x===b));res.hidden=false;list()});
+    const list=()=>{const s=q.value.trim().toLowerCase();const fs=allFoods().filter(f=>(cat==='전체'||f.cat===cat)&&(!s||f.name.toLowerCase().includes(s)||f.cat.includes(s))).slice(0,cat==='전체'?40:200);
+      res.innerHTML=fs.map(f=>`<button type="button" data-fid="${f.id}" role="option"><span>${esc(f.name)} <span class="m">${esc(f.serv)}</span></span><span class="m">${f.cat} · ${Math.round(f.n.kcal)}kcal</span></button>`).join('')||'<div class="empty"><p>찾는 음식이 없어요. 아래에서 직접 등록할 수 있어요.</p></div>'};
+    list();q.addEventListener('input',list);
+    const choose=id=>{picked=allFoods().find(f=>f.id===id);if(!picked)return;res.hidden=true;q.value=picked.name;showPick()};
+    res.addEventListener('click',e=>{const b=e.target.closest('[data-fid]');b&&choose(b.dataset.fid)});
+    bd.querySelectorAll('[data-fav]').forEach(b=>b.onclick=()=>choose(b.dataset.fav));
+    q.addEventListener('focus',()=>{res.hidden=false});
+    const showPick=()=>{const f=picked;const isFav=(S.profile.favs||[]).includes(f.id);
+      $('#pick',bd).innerHTML=`<div class="fields" style="background:var(--sunk);padding:12px;border-radius:8px">
+        <div class="full" style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>${esc(f.name)}</b><button class="btn ghost sm" type="button" id="favT" aria-pressed="${isFav}">${isFav?'★ 즐겨찾기 해제':'☆ 즐겨찾기'}</button></div>
+        <div class="field"><label for="fdU">단위</label><select id="fdU"><option value="serving">인분 (${esc(f.serv)})</option><option value="g">그램(g)</option>${f.cnt?`<option value="count">개수 (${esc(f.cnt)})</option>`:''}</select></div>
+        <div class="field"><label for="fdQty">섭취량</label><input id="fdQty" type="number" inputmode="decimal" min="0" step="0.5" value="1"></div>
+        <div class="full m num" id="prev" style="font-size:.85rem;color:var(--muted)"></div>
+        <div class="actions full"><button class="btn primary" type="button" id="addF">기록하기</button></div></div>`;
+      const u=$('#fdU',bd),qt=$('#fdQty',bd);
+      const factor=()=>{const v=+qt.value||0;return u.value==='serving'?v:u.value==='g'?v/f.servG:v*f.cntG/f.servG};
+      const pv=()=>{const x=factor();$('#prev',bd).textContent=`${Math.round(f.n.kcal*x)}kcal · 탄수화물 ${Math.round(f.n.carb*x)}g · 단백질 ${(f.n.prot*x).toFixed(1)}g · 나트륨 ${Math.round(f.n.na*x)}mg`};
+      u.addEventListener('change',()=>{qt.value=u.value==='g'?f.servG:1;qt.step=u.value==='g'?10:0.5;pv()});qt.addEventListener('input',pv);pv();
+      $('#favT',bd).onclick=()=>{const fv=S.profile.favs||[];const on=fv.includes(f.id);Store.setProfile({favs:on?fv.filter(x=>x!==f.id):[...fv,f.id]});const b=$('#favT',bd);b.setAttribute('aria-pressed',!on);b.textContent=!on?'★ 즐겨찾기 해제':'☆ 즐겨찾기'};
+      $('#addF',bd).onclick=()=>{const x=factor();if(!(x>0)){toast('섭취량을 0보다 크게 입력해 주세요');return}
+        const n={};NK.forEach(k=>n[k]=Math.round((f.n[k]||0)*x*100)/100);
+        const lab=u.value==='serving'?`${qt.value}인분 (${f.serv})`:u.value==='g'?`${qt.value}g`:`${qt.value}${f.cnt}`;
+        const date=$('#fdDate',bd).value||ui.dietDate;
+        Store.put('meals',{date,meal:$('#fdMeal',bd).value,foodId:f.id,name:f.name,amountLabel:lab,n,ts:Date.now()});
+        toast(`${f.name}을(를) 기록했어요`);picked=null;$('#pick',bd).innerHTML='';q.value='';res.hidden=false;list();q.focus()}};
+    $('#custom',bd).onclick=()=>{closeSheet();customFoodForm()};
+  });
+}
+function customFoodForm(){
+  openSheet('음식 직접 등록',`<form id="f" novalidate style="display:flex;flex-direction:column;gap:12px">
+    <div class="fields"><div class="field full"><label for="cfN">음식 이름</label><input id="cfN" placeholder="예: 엄마표 잡채"></div>
+    <div class="field"><label for="cfS">1회 제공량 이름</label><input id="cfS" value="1인분"></div>
+    <div class="field"><label for="cfG">1회 제공량 (g)</label><input id="cfG" type="number" min="1" value="100"></div></div>
+    <div class="label">1회 제공량의 영양 성분 (모르는 값은 비워 두세요)</div>
+    <div class="fields">${NK.map(k=>`<div class="field"><label for="cf_${k}">${NM[k][0]} (${NM[k][1]})${k==='kcal'?' *':''}</label><input id="cf_${k}" type="number" inputmode="decimal" min="0" step="any"></div>`).join('')}</div>
+    <p class="err" id="err" hidden></p>
+    <div class="actions"><button class="btn" type="button" data-close>취소</button><button class="btn primary" type="submit">등록</button></div></form>`,bd=>{
+    $('#f',bd).addEventListener('submit',ev=>{ev.preventDefault();const name=$('#cfN',bd).value.trim(),kc=$('#cf_kcal',bd).value;const err=$('#err',bd);
+      if(!name||kc===''){err.textContent='음식 이름과 칼로리는 꼭 입력해 주세요.';err.hidden=false;return}
+      const n={};NK.forEach(k=>n[k]=+$('#cf_'+k,bd).value||0);
+      Store.put('foods',{id:'c'+rid(),name,serv:$('#cfS',bd).value.trim()||'1인분',servG:+$('#cfG',bd).value||100,cnt:'',cntG:0,n});
+      closeSheet();toast('음식을 등록했어요. 검색해서 기록해 보세요.');setTimeout(()=>foodForm(),50)});
+  });
+}
+
+/* settings */
+function settingsSheet(){const p=S.profile;
+  openSheet('내 정보 & 데이터',`
+  <form id="f" class="fields" novalidate>
+    <div class="field"><label for="pS">성별</label><select id="pS"><option value="">선택</option><option value="M"${p.sex==='M'?' selected':''}>남성</option><option value="F"${p.sex==='F'?' selected':''}>여성</option></select></div>
+    <div class="field"><label for="pA">나이</label><input id="pA" type="number" min="10" max="110" value="${p.age||''}"></div>
+    <div class="field"><label for="pH">키 (cm)</label><input id="pH" type="number" min="100" max="230" value="${p.height||''}"></div>
+    <div class="field"><label for="pW">체중 (kg)</label><input id="pW" type="number" min="25" max="250" step="0.1" value="${p.weight||''}"></div>
+    <div class="field full"><label for="pAct">평소 활동량</label><select id="pAct"><option value="low"${p.activity==='low'?' selected':''}>낮음 · 주로 앉아서 생활</option><option value="mid"${!p.activity||p.activity==='mid'?' selected':''}>보통 · 가벼운 활동, 주 1~3회 운동</option><option value="high"${p.activity==='high'?' selected':''}>높음 · 몸을 많이 쓰거나 주 4회 이상 운동</option></select></div>
+    <p class="note full" style="margin:0">이 정보로 하루 권장 섭취량(한국인 영양소 섭취기준)과 운동 소모 칼로리를 계산해요.</p>
+    <div class="actions full"><button class="btn primary" type="submit">저장</button></div>
+  </form>
+  <div style="border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px">
+    <div class="label">데이터</div>
+    <div class="quick"><button class="btn" id="exp" type="button">JSON으로 내보내기</button><label class="btn" for="imp" style="cursor:pointer">JSON 가져오기</label><input id="imp" type="file" accept=".json,application/json" hidden></div>
+    <div class="quick"><button class="btn" id="smp" type="button">예시 데이터 넣기</button><button class="btn" id="clr" type="button">예시 데이터 지우기</button></div>
+    <div id="dataOut"></div>
+    <p class="note" style="margin:0">${Store.mode==='db'?'기록은 내 계정에만 보이도록 저장돼요. 이 페이지를 공유해도 다른 사람은 내 기록을 볼 수 없어요.':'기록은 이 브라우저에만 저장돼요. 정기적으로 내보내기로 백업해 두세요.'}</p>
+  </div>`,bd=>{
+    $('#f',bd).addEventListener('submit',ev=>{ev.preventDefault();Store.setProfile({sex:$('#pS',bd).value,age:+$('#pA',bd).value||'',height:+$('#pH',bd).value||'',weight:+$('#pW',bd).value||'',activity:$('#pAct',bd).value});closeSheet();toast('내 정보를 저장했어요')});
+    $('#exp',bd).onclick=()=>exportData($('#dataOut',bd));
+    $('#imp',bd).addEventListener('change',e=>importData(e.target.files[0],$('#dataOut',bd)));
+    $('#smp',bd).onclick=async()=>{closeSheet();await loadSample()};
+    $('#clr',bd).onclick=()=>confirmIn($('#dataOut',bd),'예시로 넣은 기록을 모두 지울까요?',async()=>{closeSheet();await clearSample()});
+  });
+}
+async function exportData(out){
+  const data=JSON.stringify({app:'하루 기록장',version:1,exportedAt:new Date().toISOString(),...S},null,2);
+  const name='하루기록장-'+today()+'.json';
+  if(!window.claude){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove();toast('내보냈어요');return}catch(e){}}
+  try{const dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;
+    if(dl){await dl.save({filename:name,data:new Blob([data],{type:'application/json'})});toast('내보냈어요');return}}catch(e){if(e&&e.code==='declined')return}
+  out.innerHTML=`<div class="field"><label for="expTxt">아래 내용을 복사해 .json 파일로 저장하세요</label><textarea id="expTxt" readonly style="min-height:140px;font-family:var(--f-num);font-size:.75rem"></textarea><button class="btn sm" type="button" id="cp">복사</button></div>`;
+  const ta=$('#expTxt',out);ta.value=data;$('#cp',out).onclick=async()=>{try{await navigator.clipboard.writeText(data);toast('복사했어요')}catch(e){ta.select();toast('선택된 내용을 복사해 주세요')}};
+}
+async function importData(file,out){if(!file)return;
+  try{const o=JSON.parse(await file.text());if(!o||typeof o!=='object')throw 0;
+    let n=0;if(o.profile)await Store.setProfile(o.profile);
+    for(const c of COLLS){for(const r of (o[c]||[])){if(r&&r.id){await Store.put(c,r);n++}}}
+    out.innerHTML=`<p class="note">${n}개 기록을 가져왔어요.</p>`;toast('가져오기를 마쳤어요');
+  }catch(e){out.innerHTML='<p class="err">이 파일을 읽지 못했어요. 하루 기록장에서 내보낸 JSON 파일인지 확인해 주세요.</p>'}}
+
+/* sample data */
+async function loadSample(){if(!guard())return;toast('예시 데이터를 넣고 있어요');
+  const t=today(),d=i=>addDays(t,-i);
+  const b1={id:'s-b1',title:'채식주의자',author:'한강',genre:'소설',status:'reading',sample:true,ts:Date.now()};
+  const b2={id:'s-b2',title:'아주 작은 습관의 힘',author:'제임스 클리어',genre:'자기계발',status:'done',rating:4,review:'작게 시작해서 꾸준히. 기록 앱을 만들게 된 이유.',doneDate:d(2),sample:true,ts:Date.now()-1};
+  const ex=[[0,'러닝',30,'5km, 가볍게'],[1,'헬스',60,'하체 위주'],[2,'걷기',30,'퇴근길'],[4,'요가',30,'아침 스트레칭'],[5,'자전거',60,'한강 자전거길']].map(([i,type,m,note])=>({id:'s-e'+i,date:d(i),type,minutes:m,note,sample:true,ts:Date.now()-i}));
+  const rd=[[0,'s-b1',30,112,140,'"나는 꿈을 꾸었어." 짧은 문장 하나가 장면을 통째로 바꾼다.'],[1,'s-b1',25,86,112,'가족의 시선으로만 그려지는 영혜. 정작 본인의 목소리는 없다.'],[2,'s-b2',40,280,320,'정체성 기반 습관: 결과가 아니라 어떤 사람이 되고 싶은지에서 시작하기.'],[3,'s-b2',35,230,280,'환경 설계. 좋은 습관은 눈에 띄게, 나쁜 습관은 보이지 않게.'],[5,'s-b2',45,170,230,'']].map(([i,b,m,pf,pt,note],j)=>({id:'s-r'+j,date:d(i),bookId:b,minutes:m,pageFrom:pf,pageTo:pt,note,sample:true,ts:Date.now()-j}));
+  const plan={0:[['breakfast','그릭요거트',1],['breakfast','바나나',1],['lunch','김치찌개',1],['lunch','쌀밥',1],['snack','아메리카노',1],['dinner','닭가슴살 샐러드',1]],
+    1:[['breakfast','버터잼 토스트',1],['lunch','비빔밥',1],['dinner','삼겹살 구이',1],['dinner','쌈채소',1],['dinner','맥주',1]],
+    2:[['breakfast','오트밀(우유)',1],['lunch','라면',1],['lunch','배추김치',1],['dinner','고등어구이',1],['dinner','현미밥',1]],
+    3:[['lunch','짜장면',1],['dinner','된장찌개',1],['dinner','잡곡밥',1],['snack','사과',1]],
+    4:[['breakfast','삶은 계란',2],['lunch','김밥',1],['dinner','불고기',1],['dinner','쌀밥',1],['dinner','시금치나물',1]],
+    5:[['lunch','돈까스',1],['dinner','미역국',1],['dinner','쌀밥',1],['snack','귤',2]],
+    6:[['breakfast','우유',1],['lunch','쌀국수',1],['dinner','순두부찌개',1],['dinner','현미밥',1]]};
+  const ml=[];Object.entries(plan).forEach(([i,arr])=>arr.forEach(([meal,name,q],j)=>{const f=BUILTIN.find(x=>x.name===name);if(!f)return;const n={};NK.forEach(k=>n[k]=Math.round(f.n[k]*q*100)/100);
+    ml.push({id:'s-m'+i+'-'+j,date:d(+i),meal,foodId:f.id,name:f.name,amountLabel:q===1?`1인분 (${f.serv})`:`${q}${f.cnt||'인분'}`,n,sample:true,ts:Date.now()-j})}));
+  for(const r of [b1,b2])await Store.put('books',r);for(const r of ex)await Store.put('exercise',r);for(const r of rd)await Store.put('reading',r);for(const r of ml)await Store.put('meals',r);
+  toast('예시 데이터를 넣었어요. 내 정보에서 지울 수 있어요.');
+}
+async function clearSample(){for(const c of COLLS){for(const r of S[c].filter(x=>x.sample))await Store.del(c,r.id)}toast('예시 데이터를 지웠어요')}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{const a=e.target.closest('[data-act]');if(!a||a.closest('#sheetRoot'))return;const act=a.dataset.act;
+  if(['add-ex','add-rd','add-book','add-food','edit-ex','open-book','sample'].includes(act)&&!guard())return;
+  switch(act){
+    case 'add-ex':exForm();break;
+    case 'edit-ex':exForm(S.exercise.find(x=>x.id===a.dataset.id));break;
+    case 'add-rd':rdForm();break;
+    case 'add-book':bookForm();break;
+    case 'open-book':bookSheet(a.dataset.id);break;
+    case 'add-food':foodForm(a.dataset.meal);break;
+    case 'del-food':{const m=S.meals.find(x=>x.id===a.dataset.id);if(m){Store.del('meals',m.id);toast(`${m.name} 기록을 삭제했어요`)}break}
+    case 'settings':settingsSheet();break;
+    case 'sample':loadSample();break;
+    case 'cal':{const dir=+a.dataset.dir;if(!dir)ui.calMonth=null;else{const [y,m]=(ui.calMonth||today().slice(0,7)).split('-').map(Number);const x=new Date(y,m-1+dir,1);ui.calMonth=x.getFullYear()+'-'+pad(x.getMonth()+1)}render();break}
+    case 'dday':{const dir=+a.dataset.dir;ui.dietDate=dir?addDays(ui.dietDate,dir):today();render();break}
+    case 'rgenre':ui.rdGenre=a.dataset.v;render();break;
+    case 'dper':ui.dietPeriod=a.dataset.v;render();break;
+    case 'slen':ui.statLen=+a.dataset.v;render();break;
+  }});
+$('#btnSettings').addEventListener('click',settingsSheet);
+const td=new Date();$('#todayLabel').textContent=td.getFullYear()+'년 '+fmtD(today());
+if(window.matchMedia){const mq=matchMedia('(prefers-color-scheme: dark)');mq.addEventListener&&mq.addEventListener('change',()=>render())}
+new MutationObserver(()=>render()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+route();
+Store.init();
+})();
+</script>
+
+</body>
+</html>
