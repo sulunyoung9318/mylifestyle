@@ -991,7 +991,7 @@ function settingsSheet(){const p=S.profile;const gs=sheetCfg();if(!gs.secret){gs
   <div style="border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px">
     <div class="label">구글 스프레드시트 연동</div>
     ${window.claude?'<p class="note" style="margin:0">claude.ai 화면에서는 외부로 보낼 수 없어요. 내려받은 index.html이나 깃허브 주소에서 연동해 주세요.</p>':''}
-    <div class="field"><label for="gsUrl">웹 앱 주소</label><input id="gsUrl" placeholder="https://script.google.com/macros/s/…/exec" value="${esc(gs.url||'')}"></div>
+    <div class="field"><label for="gsUrl">웹 앱 주소</label><input id="gsUrl" placeholder="https://script.google.com/macros/s/AKfycbzATBJQSF-fNIqvSvm0E2QTtVVooOVDUpawkXg_4GDV8EBq84QB9q7xd_7XAm9cnhBkpQ/exec" value="${esc(gs.url||'')}"></div>
     <div class="field"><label for="gsKey">비밀 키 (Apps Script의 SECRET에 똑같이 붙여 넣기)</label><span style="display:flex;gap:6px"><input id="gsKey" value="${esc(gs.secret)}" class="num" style="flex:1"><button class="btn sm" type="button" id="gsCopy">복사</button><button class="btn sm" type="button" id="gsGen">새로 만들기</button></span></div>
     <label style="display:flex;gap:8px;align-items:center;font-size:.9rem"><input type="checkbox" id="gsAuto"${gs.auto?' checked':''}> 기록이 바뀔 때마다 자동으로 보내기</label>
     <div class="quick"><button class="btn" id="gsSave" type="button">연동 정보 저장</button><button class="btn primary" id="gsSend" type="button">지금 시트로 보내기</button></div>
